@@ -23,4 +23,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/rovergulf/utils/compare/v0.1.1...HEAD
-[Released v0.1.1]: https://github.com/rovergulf/utils/tree/v0.1.1
+[v0.1.1]: https://github.com/rovergulf/utils/tree/v0.1.1
