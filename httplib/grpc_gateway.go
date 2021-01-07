@@ -1,17 +1,23 @@
 package httplib
 
 import (
+	"context"
+	"fmt"
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/opentracing/opentracing-go"
+	"go.uber.org/zap"
 	"net/http"
+	"strings"
 )
 
 type GatewayInterceptor struct {
 	Mux    *runtime.ServeMux
 	Tracer opentracing.Tracer
+	Logger *zap.SugaredLogger
 }
 
 func (i *GatewayInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 
 	// Set request headers for AJAX requests
 	if origin := r.Header.Get("Origin"); origin != "" {
@@ -27,14 +33,25 @@ func (i *GatewayInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//if i.Tracer != nil {
-	//	operation := strings.TrimPrefix(r.URL.Path, "/")
-	//	span := i.Tracer.StartSpan(fmt.Sprintf("%s:%s?%s", r.Method, operation, r.URL.RawQuery))
-	//	defer span.Finish()
-	//
-	//	ctx := opentracing.ContextWithSpan(r.Context(), span)
-	//	r = r.WithContext(ctx)
-	//}
+	// define span name
+	operation := strings.TrimPrefix(r.URL.Path, "/")
+	spanName := fmt.Sprintf("%s:%s", r.Method, operation)
+
+	query := r.URL.RawQuery
+	if len(query) > 0 {
+		spanName += "?" + query
+	}
+
+	if i.Tracer != nil {
+		span := i.Tracer.StartSpan(spanName)
+		defer span.Finish()
+		ctx = opentracing.ContextWithSpan(ctx, span)
+	}
+
+	ctx = context.WithValue(ctx, "request_path", operation)
+	r = r.WithContext(ctx)
+
+	i.Logger.Infof("Handling request [%s]", spanName)
 
 	i.Mux.ServeHTTP(w, r)
 }

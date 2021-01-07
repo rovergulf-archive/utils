@@ -3,8 +3,8 @@ package utils
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"go.uber.org/zap"
 	"io"
-	"log"
 	"math/rand"
 	"time"
 )
@@ -23,12 +23,12 @@ func GenerateHashFromString(str string) string {
 	return hex.EncodeToString(hash.Sum(nil))
 }
 
-func GeneratePasswordHash(str string, salt string) string {
+func GeneratePasswordHash(lg *zap.SugaredLogger, str string, salt string) string {
 	hash := sha256.New()
 	hash.Write([]byte(str))
 	_, err := io.WriteString(hash, salt)
 	if err != nil {
-		log.Printf("Error while writing hash password with salt: %s", err)
+		lg.Errorf("Error while writing hash password with salt: %s", err)
 	}
 	return hex.EncodeToString(hash.Sum(nil))
 }

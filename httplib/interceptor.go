@@ -1,8 +1,10 @@
 package httplib
 
 import (
+	"context"
 	"fmt"
 	"github.com/opentracing/opentracing-go"
+	"go.uber.org/zap"
 	"net/http"
 	"strings"
 )
@@ -14,9 +16,11 @@ type Router interface {
 type HTTPInterceptor struct {
 	Router Router
 	Tracer opentracing.Tracer
+	Logger *zap.SugaredLogger
 }
 
 func (i *HTTPInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 
 	// Set request headers for AJAX requests
 	if origin := r.Header.Get("Origin"); origin != "" {
@@ -32,21 +36,25 @@ func (i *HTTPInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// define span name
+	operation := strings.TrimPrefix(r.URL.Path, "/")
+	spanName := fmt.Sprintf("%s:%s", r.Method, operation)
+
+	query := r.URL.RawQuery
+	if len(query) > 0 {
+		spanName += "?" + query
+	}
+
 	if i.Tracer != nil {
-		operation := strings.TrimPrefix(r.URL.Path, "/")
-		spanName := fmt.Sprintf("%s:%s", r.Method, operation)
-
-		query := r.URL.RawQuery
-		if len(query) > 0 {
-			spanName += "?" + query
-		}
-
 		span := i.Tracer.StartSpan(spanName)
 		defer span.Finish()
-
-		ctx := opentracing.ContextWithSpan(r.Context(), span)
-		r = r.WithContext(ctx)
+		ctx = opentracing.ContextWithSpan(ctx, span)
 	}
+
+	ctx = context.WithValue(ctx, "request_path", operation)
+	r = r.WithContext(ctx)
+
+	i.Logger.Infof("Handling request [%s]", spanName)
 
 	i.Router.ServeHTTP(w, r)
 }
