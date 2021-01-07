@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+## Released [v0.1.4]
+## 7 Jan 2021
+
+### Changed
+- downgraded grpc version from 1.34 to 1.29.1 in case of backward compatibility with ectd client
+
 ## Released [v0.1.3]
 ## 7 Jan 2021
 
@@ -36,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved pkg from private repos to public utils
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v0.1.3...HEAD
+[Unreleased]: https://github.com/rovergulf/utils/compare/v0.1.4...HEAD
+[v0.1.4]: https://github.com/rovergulf/utils/compare/v0.1.4...v0.1.3
 [v0.1.3]: https://github.com/rovergulf/utils/compare/v0.1.3...v0.1.2
 [v0.1.2]: https://github.com/rovergulf/utils/compare/v0.1.2...v0.1.1
 [v0.1.1]: https://github.com/rovergulf/utils/tree/v0.1.1
