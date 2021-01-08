@@ -7,6 +7,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 	"github.com/opentracing/opentracing-go"
+	"go.uber.org/zap"
 	"log"
 	"time"
 )
@@ -18,6 +19,7 @@ type StanConn struct {
 	clusterId   string
 	clientId    string
 	brokersAddr string
+	logger      *zap.SugaredLogger
 }
 
 func NewStreamConn(clusterId, clientId string, opts ...stan.Option) (stan.Conn, error) {
@@ -34,21 +36,22 @@ func NewStreamConn(clusterId, clientId string, opts ...stan.Option) (stan.Conn, 
 		return nil, err
 	}
 
-	log.Printf("[%s] Successfully connected to '%s' NATS-streaming cluster", clientId, clusterId)
+	//log.Printf("[%s] Successfully connected to '%s' NATS-streaming cluster", clientId, clusterId)
 	return sc, nil
 }
 
-func NewStanConn(ctx context.Context, clusterId, brokerAddr, clientId string, opts ...nats.Option) (*StanConn, error) {
+func NewStanConn(ctx context.Context, lg *zap.SugaredLogger, clusterId, brokerAddr, clientId string, opts ...nats.Option) (*StanConn, error) {
 	s := new(StanConn)
 	s.ctx = ctx
 	s.clusterId = clusterId
 	s.clientId = clientId
+	s.logger = lg
 
 	opts = append(opts, nats.Name(clientId))
 
 	nc, err := NewConn(s.ctx, brokerAddr, opts...)
 	if err != nil {
-		log.Printf("Failed to set nats server connection: %s", err)
+		s.logger.Errorf("Failed to set nats server connection: %s", err)
 		return nil, err
 	}
 
@@ -58,7 +61,7 @@ func NewStanConn(ctx context.Context, clusterId, brokerAddr, clientId string, op
 		stan.NatsConn(nc),
 	)
 	if err != nil {
-		log.Printf("Failed to set stan connection: %s", err)
+		s.logger.Errorf("Failed to set stan connection: %s", err)
 		return nil, err
 	}
 	s.client = sc
@@ -69,8 +72,16 @@ func NewStanConn(ctx context.Context, clusterId, brokerAddr, clientId string, op
 func (sc *StanConn) Stop() {
 	if sc.client != nil {
 		if err := sc.client.Close(); err != nil {
-			log.Printf("Unable to stop nats streaming server connection: %s", err)
+			sc.logger.Errorf("Unable to stop nats streaming server connection: %s", err)
 		}
+	}
+}
+
+func (sc *StanConn) DefaultAckHandler(nuid string, err error) {
+	if err != nil {
+		sc.logger.Errorf("! Error publishing message [nuid: %s]: %s", nuid, err)
+	} else {
+		sc.logger.Infof("Received ack for message [nuid: %s]", nuid)
 	}
 }
 
@@ -105,7 +116,7 @@ func (sc *StanConn) SendAsyncMessage(topic string, data interface{}, handler sta
 		return
 	}
 	if handler == nil {
-		handler = DefaultAckHandler
+		handler = sc.DefaultAckHandler
 	}
 
 	payload, err := json.Marshal(data)

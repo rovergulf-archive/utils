@@ -2,7 +2,7 @@ package kafka
 
 import (
 	"context"
-	"github.com/rovergulf/utils/clog"
+	"go.uber.org/zap"
 )
 
 type HighLevelConsumer struct {
@@ -10,13 +10,13 @@ type HighLevelConsumer struct {
 	Ctx      context.Context
 }
 
-func NewHighLevelConsumer(ctx context.Context, addr string, topic string, app string) *HighLevelConsumer {
-	consumer, err := NewConsumer(addr, topic, app)
+func NewHighLevelConsumer(ctx context.Context, lg *zap.SugaredLogger, addr string, topic string, app string) *HighLevelConsumer {
+	consumer, err := NewConsumer(lg, addr, topic, app)
 	if err != nil {
-		clog.Fatal(err.Error())
+		lg.Fatal(err)
 	}
 	if err := consumer.Start(consumer.LastOffset()); err != nil {
-		clog.Fatal(err.Error())
+		lg.Fatal(err.Error())
 	}
 	return &HighLevelConsumer{
 		Ctx:      ctx,
@@ -29,7 +29,7 @@ loop:
 	for {
 		select {
 		case <-con.Ctx.Done():
-			clog.Info("Received shutdown signal, stopping consumption")
+			con.Consumer.Logger.Info("Received shutdown signal, stopping consumption")
 			con.Consumer.Stop()
 			break loop
 		case m := <-con.Consumer.Messages():
@@ -37,11 +37,11 @@ loop:
 			offset := m.Offset
 			msg := m.Message
 			if err := handler(msg.Value); err != nil {
-				clog.Error(err.Error())
+				con.Consumer.Logger.Error(err)
 			}
 			con.Consumer.Ack(partition, offset)
 		case e := <-con.Consumer.Errors():
-			clog.Error(e.Error())
+			con.Consumer.Logger.Error(e)
 		}
 	}
 }

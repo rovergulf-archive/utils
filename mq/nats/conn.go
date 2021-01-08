@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/nats-io/nats.go"
 	"github.com/opentracing/opentracing-go"
+	"go.uber.org/zap"
 	"log"
 	"time"
 )
@@ -11,11 +12,13 @@ import (
 type NatsConn struct {
 	Conn   *nats.Conn
 	Tracer opentracing.Tracer
+	Logger *zap.SugaredLogger
 }
 
 type NatsEncodedConn struct {
 	Conn   *nats.EncodedConn
 	Tracer opentracing.Tracer
+	Logger *zap.SugaredLogger
 }
 
 func setupDefaultNatsConnOptions(opts []nats.Option) []nats.Option {

@@ -3,7 +3,7 @@ package kafka
 import (
 	"fmt"
 	"github.com/Shopify/sarama"
-	"github.com/rovergulf/utils/clog"
+	"go.uber.org/zap"
 	"strings"
 	"sync"
 )
@@ -15,6 +15,8 @@ type Message struct {
 }
 
 type Consumer struct {
+	Logger *zap.SugaredLogger
+
 	messages chan Message
 	errors   chan error
 	quit     chan struct{}
@@ -28,11 +30,12 @@ type Consumer struct {
 	UseOldestOnFail bool
 }
 
-func NewConsumer(brokersAddr, topic, clientId string) (*Consumer, error) {
+func NewConsumer(lg *zap.SugaredLogger, brokersAddr, topic, clientId string) (*Consumer, error) {
 
 	var wg sync.WaitGroup
 
 	c := Consumer{
+		Logger:   lg,
 		messages: make(chan Message),
 		errors:   make(chan error),
 		quit:     make(chan struct{}),
@@ -93,11 +96,11 @@ func (c Consumer) Start(offsets map[int32]int64) error {
 			// times. If the caller always uses `LastOffset()` it will use the
 			// correct offset.  Which is the oldest offset for the  first time
 			// or continue from last commited offset.
-			clog.Warningf("offset partition %d is not given, using newest offset", p)
+			c.Logger.Warnf("offset partition %d is not given, using newest offset", p)
 			offset = sarama.OffsetNewest
 		}
 
-		clog.Infof("consuming kafka topic:%s partition:%d offset:%d", c.topic, p, offset)
+		c.Logger.Infof("consuming kafka topic:%s partition:%d offset:%d", c.topic, p, offset)
 		pc, err := c.consumer.ConsumePartition(c.topic, p, offset)
 		if err != nil {
 			if !c.UseOldestOnFail {
@@ -121,7 +124,7 @@ func (c Consumer) Start(offsets map[int32]int64) error {
 					if pc != nil {
 						err := pc.Close()
 						if err != nil {
-							clog.Errorf("Unable to close partition consumer")
+							c.Logger.Errorf("Unable to close partition consumer")
 						}
 					}
 					return
@@ -140,13 +143,13 @@ func (c Consumer) Start(offsets map[int32]int64) error {
 // stop consuming
 func (c Consumer) Stop() {
 	close(c.quit)
-	clog.Info("Waiting kafka partition consumer to stop")
+	c.Logger.Info("Waiting kafka partition consumer to stop")
 	c.wg.Wait()
-	clog.Info("Kafka partition consumer stopped")
+	c.Logger.Info("Kafka partition consumer stopped")
 	if c.consumer != nil {
 		err := c.consumer.Close()
 		if err != nil {
-			clog.Errorf("Unable to stop consumer")
+			c.Logger.Errorf("Unable to stop consumer")
 		}
 	}
 	if c.pom != nil {
@@ -154,7 +157,7 @@ func (c Consumer) Stop() {
 			if p != nil {
 				err := p.Close()
 				if err != nil {
-					clog.Errorf("Unable to stop partition offset manager")
+					c.Logger.Errorf("Unable to stop partition offset manager")
 				}
 			}
 		}
@@ -162,7 +165,7 @@ func (c Consumer) Stop() {
 	if c.client != nil {
 		err := c.client.Close()
 		if err != nil {
-			clog.Errorf("Unable to stop partition consumer")
+			c.Logger.Errorf("Unable to stop partition consumer")
 		}
 	}
 }
@@ -194,6 +197,6 @@ func (c Consumer) Ack(partition int32, offset int64) {
 	if om, ok := c.pom[partition]; ok {
 		om.MarkOffset(offset, "")
 	} else {
-		clog.Warningf("Skipping Ack for unmanaged partition %d offset %d", partition, offset)
+		c.Logger.Warnf("Skipping Ack for unmanaged partition %d offset %d", partition, offset)
 	}
 }

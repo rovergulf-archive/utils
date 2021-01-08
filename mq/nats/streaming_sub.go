@@ -6,7 +6,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 	"github.com/opentracing/opentracing-go"
-	"log"
+	"go.uber.org/zap"
 	"path"
 	"strings"
 	"time"
@@ -15,6 +15,7 @@ import (
 type StanSub struct {
 	ctx        context.Context
 	Tracer     opentracing.Tracer
+	Logger     *zap.SugaredLogger
 	conn       *StanConn
 	sub        stan.Subscription
 	messages   chan *stan.Msg
@@ -24,8 +25,8 @@ type StanSub struct {
 	ackManager *AckManager
 }
 
-func NewChanSubWithTracer(ctx context.Context, tracer opentracing.Tracer, storageDirPath, clusterId, channel, brokerAddr string, opts ...nats.Option) (*StanSub, error) {
-	ns, err := NewChanSub(ctx, storageDirPath, clusterId, channel, brokerAddr, opts...)
+func NewChanSubWithTracer(ctx context.Context, lg *zap.SugaredLogger, tracer opentracing.Tracer, storageDirPath, clusterId, channel, brokerAddr string, opts ...nats.Option) (*StanSub, error) {
+	ns, err := NewChanSub(ctx, lg, storageDirPath, clusterId, channel, brokerAddr, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +37,9 @@ func NewChanSubWithTracer(ctx context.Context, tracer opentracing.Tracer, storag
 
 // NewChanSub creates connection with channel-named clientID
 // creating subscription with a whole service lifetime context
-func NewChanSub(ctx context.Context, storageDirPath, clusterId, brokerAddr, channel string, opts ...nats.Option) (*StanSub, error) {
+func NewChanSub(ctx context.Context, lg *zap.SugaredLogger, storageDirPath, clusterId, brokerAddr, channel string, opts ...nats.Option) (*StanSub, error) {
 	s := new(StanSub)
+	s.Logger = lg
 	s.ctx = ctx
 	s.messages = make(chan *stan.Msg)
 	s.errors = make(chan error)
@@ -54,13 +56,13 @@ func NewChanSub(ctx context.Context, storageDirPath, clusterId, brokerAddr, chan
 
 	flushInterval := 30 * time.Minute
 	dumpPath := path.Join(storageDirPath, fmt.Sprintf("/%s.dump", clientId))
-	log.Printf("[%s] Start execution NATS ack manager dump from %s with %s interval", clientId, dumpPath, flushInterval)
+	s.Logger.Infof("[%s] Start execution NATS ack manager dump from %s with %s interval", clientId, dumpPath, flushInterval)
 	s.ackManager = NewAckTimestampManager(dumpPath, flushInterval)
 	lastSequence := s.ackManager.Get()
 
-	conn, err := NewStanConn(ctx, clusterId, brokerAddr, clientId, opts...)
+	conn, err := NewStanConn(ctx, lg, clusterId, brokerAddr, clientId, opts...)
 	if err != nil {
-		log.Printf("Unable to connect [%s:%s]: %s", clientId, brokerAddr, err)
+		s.Logger.Errorf("Unable to connect [%s:%s]: %s", clientId, brokerAddr, err)
 		return nil, err
 	}
 	s.conn = conn
@@ -76,12 +78,12 @@ func NewChanSub(ctx context.Context, storageDirPath, clusterId, brokerAddr, chan
 		s.messages <- msg
 	}, sopts...)
 	if err != nil {
-		log.Printf("Unable to subscribe [%s: %s]: %s", clientId, channel, err)
+		s.Logger.Errorf("Unable to subscribe [%s: %s]: %s", clientId, channel, err)
 		return nil, err
 	}
 	s.sub = sub
 
-	log.Printf("[%s] NATS subscription started awating '%s'-channel at sequence %d", clientId, channel, lastSequence)
+	s.Logger.Infof("[%s] NATS subscription started awating '%s'-channel at sequence %d", clientId, channel, lastSequence)
 	return s, nil
 }
 
@@ -90,7 +92,7 @@ loop:
 	for {
 		select {
 		case <-s.ctx.Done():
-			log.Printf("[%s] Received shutdown signal, stopping '%s' subscription", s.conn.clientId, s.channel)
+			s.Logger.Infof("[%s] Received shutdown signal, stopping '%s' subscription", s.conn.clientId, s.channel)
 			s.Stop()
 			break loop
 		case msg := <-s.messages:
@@ -105,24 +107,24 @@ loop:
 			}
 
 			if err := handler(msg.Data); err != nil {
-				log.Printf("Unable to handle nats '%s' subscription message: %s", s.channel, err)
+				s.Logger.Errorf("Unable to handle nats '%s' subscription message: %s", s.channel, err)
 				s.errors <- err
 			} else {
-				log.Printf("[%s] Successfully received sequenced message: %d at %d", s.channel, msg.Sequence, msg.Timestamp)
+				s.Logger.Infof("[%s] Successfully received sequenced message: %d at %d", s.channel, msg.Sequence, msg.Timestamp)
 			}
 
 			if err := msg.Ack(); err != nil {
-				log.Printf("Unable to respond nats message: %s", err)
+				s.Logger.Infof("Unable to respond nats message: %s", err)
 			} else {
 				s.ackManager.Set(msg.Sequence)
-				log.Printf("[%s] Succesfully acked: %s", s.channel, msg.Reply)
+				s.Logger.Infof("[%s] Succesfully acked: %s", s.channel, msg.Reply)
 			}
 
 			if span != nil {
 				span.Finish()
 			}
 		case e := <-s.errors:
-			log.Printf("Subscription error: %s", e)
+			s.Logger.Errorf("Subscription error: %s", e)
 		}
 	}
 }
@@ -142,14 +144,14 @@ func (s *StanSub) Stop() {
 
 	if s.sub != nil {
 		if err := s.sub.Unsubscribe(); err != nil {
-			log.Printf("Unable to unsubscribe at %s: %s", s.channel, err)
+			s.Logger.Infof("Unable to unsubscribe at %s: %s", s.channel, err)
 		}
 	}
 
 	if s.conn.client != nil {
-		log.Printf("Closing connection: [%s: %s]", s.conn.clientId, s.channel)
+		s.Logger.Infof("Closing connection: [%s: %s]", s.conn.clientId, s.channel)
 		if err := s.conn.client.Close(); err != nil {
-			log.Printf("Unable to close nats streaming server connection at %s: %s", s.channel, err)
+			s.Logger.Errorf("Unable to close nats streaming server connection at %s: %s", s.channel, err)
 		}
 	}
 }

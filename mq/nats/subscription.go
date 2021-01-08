@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/opentracing/opentracing-go"
-	"github.com/rovergulf/utils/clog"
-	"log"
+	"go.uber.org/zap"
 )
 
 type NatsSub struct {
-	Ctx    context.Context
 	Tracer opentracing.Tracer
+	Logger *zap.SugaredLogger
 
 	messages chan *nats.Msg
 	errors   chan error
@@ -22,12 +21,12 @@ type NatsSub struct {
 	sub      *nats.Subscription
 }
 
-func NewSubscriptionWithTracing(ctx context.Context, tracer opentracing.Tracer, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
+func NewSubscriptionWithTracing(ctx context.Context, lg *zap.SugaredLogger, tracer opentracing.Tracer, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
 	if tracer == nil {
 		return nil, fmt.Errorf("'tracer opentracting.Tracer' provided as nil")
 	}
 
-	sub, err := NewSubscription(ctx, brokerAddr, subject, opts...)
+	sub, err := NewSubscription(ctx, lg, brokerAddr, subject, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -37,10 +36,10 @@ func NewSubscriptionWithTracing(ctx context.Context, tracer opentracing.Tracer, 
 	return sub, nil
 }
 
-func NewSubscription(ctx context.Context, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
+func NewSubscription(ctx context.Context, lg *zap.SugaredLogger, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
 	c := new(NatsSub)
 
-	c.Ctx = ctx
+	c.Logger = lg
 	c.messages = make(chan *nats.Msg)
 	c.errors = make(chan error)
 	c.quit = make(chan struct{})
@@ -50,7 +49,7 @@ func NewSubscription(ctx context.Context, brokerAddr, subject string, opts ...na
 
 	enc, err := NewEncodedConn(ctx, brokerAddr, opts...)
 	if err != nil {
-		clog.Errorf("Unable to create NATS encoded connection: %s", err)
+		c.Logger.Errorf("Unable to create NATS encoded connection: %s", err)
 		return nil, err
 	}
 
@@ -60,13 +59,13 @@ func NewSubscription(ctx context.Context, brokerAddr, subject string, opts ...na
 		c.messages <- msg
 	})
 	if err != nil {
-		clog.Errorf("Unable to start scheduler subject subscription: %s", err)
+		c.Logger.Errorf("Unable to start scheduler subject subscription: %s", err)
 		return nil, err
 	}
 
 	c.sub = sub
 
-	log.Printf("Initialized NATS subscription at '%s' subject\n", c.subject)
+	c.Logger.Infof("Initialized NATS subscription at '%s' subject", c.subject)
 	return c, nil
 }
 
@@ -74,10 +73,10 @@ func (ns *NatsSub) StartConsumption(ctx context.Context, handler func(data []byt
 loop:
 	for {
 		select {
-		case <-ns.Ctx.Done():
-			log.Println("Received shutdown signal, stopping subscription")
+		case <-ctx.Done():
+			ns.Logger.Info("Received shutdown signal, stopping subscription")
 			if err := ns.Stop(); err != nil { // ???
-				log.Printf("Failed to unsubscribe at %s: %s", ns.subject, err)
+				ns.Logger.Infof("Failed to unsubscribe at %s: %s", ns.subject, err)
 			}
 			if ns.conn != nil {
 				ns.conn.Close()
@@ -88,20 +87,20 @@ loop:
 
 			// check if we have available handler
 			delivered, _ := ns.sub.Delivered()
-			log.Printf("Successfully received '%s' message with increment: %d", ns.subject, delivered)
+			ns.Logger.Infof("Successfully received '%s' message with increment: %d", ns.subject, delivered)
 
 			if ns.Tracer != nil {
 				span = ns.Tracer.StartSpan(fmt.Sprintf("[%s:%d]", ns.subject, delivered))
 			}
 
 			if err := handler(m.Data); err != nil {
-				log.Printf("Unable to handle nats '%s' subscription message: %s", ns.subject, err)
+				ns.Logger.Infof("Unable to handle nats '%s' subscription message: %s", ns.subject, err)
 			}
 			if len(m.Reply) > 0 {
 				if err := m.Respond([]byte(m.Reply)); err != nil {
-					log.Printf("Unable to respond nats message: %s", err)
+					ns.Logger.Infof("Unable to respond nats message: %s", err)
 				} else {
-					log.Printf("Succesfully responed [%s: %s]", ns.subject, m.Reply)
+					ns.Logger.Infof("Succesfully responed [%s: %s]", ns.subject, m.Reply)
 				}
 			}
 
@@ -109,7 +108,7 @@ loop:
 				span.Finish()
 			}
 		case e := <-ns.Errors():
-			log.Printf("Subscription [%s] error: %s", ns.subject, e)
+			ns.Logger.Infof("Subscription [%s] error: %s", ns.subject, e)
 		}
 	}
 }
