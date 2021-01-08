@@ -54,8 +54,7 @@ func (i *HTTPInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx = context.WithValue(ctx, "request_path", operation)
 	r = r.WithContext(ctx)
 
-	i.Logger.Infow("Handling request",
-		"request_url", spanName)
+	i.Logger.Infof("Handling request [%s][%s]", r.Method, operation)
 
 	i.Router.ServeHTTP(w, r)
 }
