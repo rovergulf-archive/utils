@@ -9,6 +9,11 @@ import (
 	"strings"
 )
 
+const (
+	contextRequestPath   = "request_path"
+	contextRequestMethod = "request_method"
+)
+
 type Router interface {
 	ServeHTTP(http.ResponseWriter, *http.Request)
 }
@@ -51,10 +56,25 @@ func (i *HTTPInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		ctx = opentracing.ContextWithSpan(ctx, span)
 	}
 
-	ctx = context.WithValue(ctx, "request_path", operation)
+	ctx = context.WithValue(ctx, contextRequestPath, operation)
+	ctx = context.WithValue(ctx, contextRequestMethod, r.Method)
 	r = r.WithContext(ctx)
 
 	i.Logger.Infof("Handling request [%s][%s]", r.Method, operation)
 
 	i.Router.ServeHTTP(w, r)
+}
+
+func (i *HTTPInterceptor) ResponseJSON(ctx context.Context, w http.ResponseWriter, payload interface{}) {
+	i.Logger.Debugw("Successful HTTP Request",
+		contextRequestMethod, ctx.Value(contextRequestMethod),
+		contextRequestPath, ctx.Value(contextRequestPath))
+	ResponseJSON(w, payload)
+}
+
+func (i *HTTPInterceptor) ErrorResponseJSON(ctx context.Context, w http.ResponseWriter, statusCode, internalCode int, err error) {
+	i.Logger.Debugw("Failed HTTP Request",
+		contextRequestMethod, ctx.Value(contextRequestMethod),
+		contextRequestPath, ctx.Value(contextRequestPath))
+	ErrorResponseJSON(w, statusCode, internalCode, err)
 }
