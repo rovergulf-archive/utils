@@ -2,7 +2,7 @@ module github.com/rovergulf/utils
 
 go 1.15
 
-replace github.com/rovergulf/utils => github.com/rovergulf/utils v0.1.3
+replace github.com/rovergulf/utils => github.com/rovergulf/utils v0.2.1
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.0.1 // indirect
