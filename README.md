@@ -6,6 +6,6 @@ Rovergulf Engineers common utils repository
 - httplib - http utility library
 - hub - gorilla/websocket wrapper
 - mq
-  - kafka consumer wrapper
+  - Shopify/sarama Kafka consumer wrapper
   - nats-streaming wrapper
 - pgxs - jackc/pgx wrapper
