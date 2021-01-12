@@ -14,16 +14,19 @@ const (
 	contextRequestMethod = "request_method"
 )
 
+// Router
 type Router interface {
 	ServeHTTP(http.ResponseWriter, *http.Request)
 }
 
+// HTTPInterceptor
 type HTTPInterceptor struct {
 	Router Router
 	Tracer opentracing.Tracer
 	Logger *zap.SugaredLogger
 }
 
+// ServeHTTP
 func (i *HTTPInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
@@ -65,6 +68,7 @@ func (i *HTTPInterceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	i.Router.ServeHTTP(w, r)
 }
 
+// ResponseJSON
 func (i *HTTPInterceptor) ResponseJSON(ctx context.Context, w http.ResponseWriter, payload interface{}) {
 	i.Logger.Debugw("Successful HTTP Request",
 		contextRequestMethod, ctx.Value(contextRequestMethod),
@@ -72,6 +76,7 @@ func (i *HTTPInterceptor) ResponseJSON(ctx context.Context, w http.ResponseWrite
 	ResponseJSON(w, payload)
 }
 
+// ErrorResponseJSON
 func (i *HTTPInterceptor) ErrorResponseJSON(ctx context.Context, w http.ResponseWriter, statusCode, internalCode int, err error) {
 	i.Logger.Debugw("Failed HTTP Request",
 		contextRequestMethod, ctx.Value(contextRequestMethod),

@@ -7,6 +7,13 @@ import (
 	"time"
 )
 
+var CookieName = "session"
+
+func SetCookieName(name string) {
+	CookieName = name
+}
+
+// GetRequestCookieStringValue
 func GetRequestCookieStringValue(r *http.Request, cookieName string) (string, error) {
 	prefix := cookieName + "="
 	retrievedCookie, _ := r.Cookie(cookieName)
@@ -31,6 +38,7 @@ func GetRequestCookieStringValue(r *http.Request, cookieName string) (string, er
 	return "", fmt.Errorf("%s", "Empty cookie or cannot be read")
 }
 
+// SetHttpCookieValue
 func SetHttpCookieValue(w http.ResponseWriter, domain, cookieName, value string, expireTime time.Time) {
 	cookie := http.Cookie{Name: cookieName, Value: value, Expires: expireTime, Domain: domain, HttpOnly: true}
 	http.SetCookie(w, &cookie)

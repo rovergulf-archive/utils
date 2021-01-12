@@ -7,39 +7,34 @@ import (
 	"strings"
 )
 
-var SessionName = "session"
-
-func SetSessionName(name string) {
-	SessionName = name
-}
-
 const (
 	PrefixBearer = "Bearer "
+	ContextToken = "access_token"
 )
 
-func ExtractSessionFromRequest(r *http.Request) (string, error) {
-	session, _ := GetRequestCookieStringValue(r, SessionName)
-	if len(session) > 0 {
-		return session, nil
+func ExtractTokenFromRequest(r *http.Request) (string, error) {
+	token, _ := GetRequestCookieStringValue(r, CookieName)
+	if len(token) > 0 {
+		return token, nil
 	}
 
-	session = GetAuthorizationTokenFromRequestHeader(r, PrefixBearer)
-	if len(session) > 0 {
-		return session, nil
+	token = GetAuthorizationTokenFromRequestHeader(r, PrefixBearer)
+	if len(token) > 0 {
+		return token, nil
 	}
 
-	session = r.FormValue(SessionName)
-	if len(session) == 0 || session == " " {
-		return "", fmt.Errorf("not a session cookie, nor auth header, nor query parameter specified")
+	token = r.FormValue(CookieName)
+	if len(token) == 0 || token == " " {
+		return "", fmt.Errorf("not a token cookie, nor auth header, nor query parameter specified")
 	}
 
-	return session, nil
+	return token, nil
 }
 
-func GetSessionIdFromRequestCookie(r *http.Request) string {
-	session, _ := GetRequestCookieStringValue(r, SessionName)
+func GetTokenIdFromRequestCookie(r *http.Request) string {
+	token, _ := GetRequestCookieStringValue(r, CookieName)
 
-	return session
+	return token
 }
 
 func GetAuthorizationTokenFromRequestHeader(r *http.Request, prefix string) string {
@@ -54,11 +49,11 @@ func GetAuthorizationTokenFromRequestHeader(r *http.Request, prefix string) stri
 	return authHeader[len(prefix):]
 }
 
-func HTTPSessionHandler(handler http.Handler) http.Handler {
+func HTTPTokenHandler(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
-		sessionId, _ := ExtractSessionFromRequest(r)
-		ctx = context.WithValue(ctx, "sessionId", sessionId)
+		tokenId, _ := ExtractTokenFromRequest(r)
+		ctx = context.WithValue(ctx, ContextToken, tokenId)
 		handler.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
