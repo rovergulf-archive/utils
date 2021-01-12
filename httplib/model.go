@@ -38,6 +38,7 @@ func NewApiError(code int, msg string) *ApiError {
 	return &ApiError{
 		ErrorCode: code,
 		Message:   msg,
+		Timestamp: time.Now().Format(time.RFC1123),
 	}
 }
 
@@ -67,7 +68,7 @@ type Response struct {
 func SuccessfulResult() Response {
 	return Response{
 		Success:   true,
-		Timestamp: time.Now().Unix(),
+		Timestamp: time.Now().Format(time.RFC1123),
 		Message:   "Well done, mate!",
 	}
 }
@@ -75,7 +76,7 @@ func SuccessfulResult() Response {
 func SuccessfulResultMap() map[string]interface{} {
 	return map[string]interface{}{
 		"success":   true,
-		"timestamp": time.Now().Unix(),
+		"timestamp": time.Now().Format(time.RFC1123),
 		"message":   "Well done, mate!",
 	}
 }
