@@ -5,6 +5,8 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
+	"github.com/jackc/pgconn"
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"go.uber.org/zap"
 	"io/ioutil"
@@ -198,4 +200,21 @@ func QuoteString(str string) string {
 
 func (db *Repo) SanitizeString(str string) string {
 	return QuoteString(str)
+}
+
+// handleSqlErr used to avoid not exists and already exists debug queries
+func (r *Repo) DebugLogSqlErr(q, err error) error {
+	pgErr, deuce := err.(*pgconn.PgError)
+	r.Logger.Warnf("%v, %v", deuce, pgErr)
+	if deuce {
+		if pgErr.Code == "23505" {
+			deuce = false
+		}
+	}
+
+	if err != pgx.ErrNoRows && !deuce {
+		r.Logger.Debugf("query: \n%s", q)
+	}
+
+	return err
 }
