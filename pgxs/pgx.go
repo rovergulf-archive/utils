@@ -203,9 +203,9 @@ func (db *Repo) SanitizeString(str string) string {
 }
 
 // handleSqlErr used to avoid not exists and already exists debug queries
-func (r *Repo) DebugLogSqlErr(q, err error) error {
+func (db *Repo) DebugLogSqlErr(q string, err error) error {
 	pgErr, deuce := err.(*pgconn.PgError)
-	r.Logger.Warnf("%v, %v", deuce, pgErr)
+	db.Logger.Warnf("%v, %v", deuce, pgErr)
 	if deuce {
 		if pgErr.Code == "23505" {
 			deuce = false
@@ -213,7 +213,7 @@ func (r *Repo) DebugLogSqlErr(q, err error) error {
 	}
 
 	if err != pgx.ErrNoRows && !deuce {
-		r.Logger.Debugf("query: \n%s", q)
+		db.Logger.Debugf("query: \n%s", q)
 	}
 
 	return err
