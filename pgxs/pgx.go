@@ -10,26 +10,26 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 	"go.uber.org/zap"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"strings"
 )
 
 type PgConf struct {
-	ConnString       string      `json:"conn_string" yaml:"conn_string"`
-	ServiceName      string      `json:"service" yaml:"service"`
-	ActualSchemaPath string      `json:"actual_schema_path" yaml:"schema_path"`
-	DataDir          string      `json:"data_dir" yaml:"data_dir"`
-	Host             string      `json:"host" yaml:"host"`
-	Port             string      `json:"port" yaml:"port"`
-	Name             string      `json:"name" yaml:"name"`
-	User             string      `json:"user" yaml:"user"`
-	Password         string      `json:"password" yaml:"password"`
-	SslMode          string      `json:"ssl_mode" yaml:"ssl_mode"`
-	SslPath          string      `json:"ssl_path" yaml:"ssl_path"`
-	TLS              SSL         `json:"tls" yaml:"tls"`
-	TLSConfig        *tls.Config `json:"-" yaml:"-"`
+	ConnString      string      `json:"conn_string" yaml:"conn_string"`
+	ServiceName     string      `json:"service" yaml:"service"`
+	ActualSchema    string      `json:"actual_schema" yaml:"schema_path"`
+	MigrationSchema string      `json:"migration_schema" yaml:"migration_schema_path"`
+	DataDir         string      `json:"data_dir" yaml:"data_dir"`
+	Host            string      `json:"host" yaml:"host"`
+	Port            string      `json:"port" yaml:"port"`
+	Name            string      `json:"name" yaml:"name"`
+	User            string      `json:"user" yaml:"user"`
+	Password        string      `json:"password" yaml:"password"`
+	SslMode         string      `json:"ssl_mode" yaml:"ssl_mode"`
+	SslPath         string      `json:"ssl_path" yaml:"ssl_path"`
+	TLS             SSL         `json:"tls" yaml:"tls"`
+	TLSConfig       *tls.Config `json:"-" yaml:"-"`
 }
 
 type SSL struct {
@@ -124,7 +124,7 @@ func (db *Repo) GetConfig() (*pgxpool.Config, error) {
 func (db *Repo) GracefulShutdown(ctx context.Context) {
 	if db.Pool != nil {
 		db.Pool.Close()
-		log.Println("Successfully closed postgreSQL connection pool")
+		db.Logger.Infof("Successfully closed postgreSQL connection pool")
 	}
 }
 

@@ -7,9 +7,11 @@ replace github.com/rovergulf/utils => github.com/rovergulf/utils v0.2.1
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.0.1 // indirect
 	github.com/Shopify/sarama v1.27.2
+	github.com/gorilla/mux v1.8.0 // indirect
 	github.com/gorilla/websocket v1.4.2
 	github.com/grpc-ecosystem/grpc-gateway v1.14.6
 	github.com/grpc-ecosystem/grpc-opentracing v0.0.0-20180507213350-8e809c8a8645
+	github.com/jackc/pgconn v1.8.0
 	github.com/jackc/pgx/v4 v4.10.1
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/nats.go v1.10.0
