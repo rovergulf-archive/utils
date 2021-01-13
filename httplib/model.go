@@ -27,10 +27,6 @@ func (e ApiError) String() string {
 		msg = fmt.Sprintf("[INTERNAL_CODE:%d] %s", e.ErrorCode, msg)
 	}
 
-	if e.Timestamp != nil {
-		msg = fmt.Sprintf("[%s] %s", time.Unix(e.Timestamp.(int64), 0), msg)
-	}
-
 	return fmt.Sprintf("%s", msg)
 }
 
@@ -41,8 +37,6 @@ func NewApiError(code int, msg string) *ApiError {
 		Timestamp: time.Now().Format(time.RFC1123),
 	}
 }
-
-type ResultAdditionalFields map[string]interface{}
 
 type CreatedObjectId struct {
 	Id   interface{} `json:"id,omitempty" yaml:"id,omitempty"`

@@ -30,8 +30,6 @@ func NewJaeger(ctx context.Context, logger *zap.SugaredLogger, serviceName, addr
 	ctx = opentracing.ContextWithSpan(context.Background(), span)
 	defer span.Finish()
 
-	metrics := prometheus.New()
-
 	traceTransport, err := jaeger.NewUDPTransport(address, 0)
 	if err != nil {
 		j.logger.Errorf("Unable to init tracing transport: %s", err)
@@ -43,7 +41,7 @@ func NewJaeger(ctx context.Context, logger *zap.SugaredLogger, serviceName, addr
 	}.NewTracer(
 		config.Sampler(jaeger.NewConstSampler(true)),
 		config.Reporter(jaeger.NewRemoteReporter(traceTransport, jaeger.ReporterOptions.Logger(jaeger.StdLogger))),
-		config.Metrics(metrics),
+		config.Metrics(j.Metrics),
 	)
 	if err != nil {
 		j.logger.Errorf("Unable to start tracer: %s", err)

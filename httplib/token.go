@@ -1,7 +1,6 @@
 package httplib
 
 import (
-	"context"
 	"fmt"
 	"net/http"
 	"strings"
@@ -9,7 +8,6 @@ import (
 
 const (
 	PrefixBearer = "Bearer "
-	ContextToken = "access_token"
 )
 
 func ExtractTokenFromRequest(r *http.Request) (string, error) {
@@ -31,12 +29,6 @@ func ExtractTokenFromRequest(r *http.Request) (string, error) {
 	return token, nil
 }
 
-func GetTokenIdFromRequestCookie(r *http.Request) string {
-	token, _ := GetRequestCookieStringValue(r, CookieName)
-
-	return token
-}
-
 func GetAuthorizationTokenFromRequestHeader(r *http.Request, prefix string) string {
 	if prefix == "" {
 		prefix = PrefixBearer // ?? is it good enough for default?
@@ -47,13 +39,4 @@ func GetAuthorizationTokenFromRequestHeader(r *http.Request, prefix string) stri
 		return ""
 	}
 	return authHeader[len(prefix):]
-}
-
-func HTTPTokenHandler(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := r.Context()
-		tokenId, _ := ExtractTokenFromRequest(r)
-		ctx = context.WithValue(ctx, ContextToken, tokenId)
-		handler.ServeHTTP(w, r.WithContext(ctx))
-	})
 }

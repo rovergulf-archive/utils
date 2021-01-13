@@ -4,16 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v0.0.0
+## [Unreleased] v0.4.0
 
-## 10 Jan 2021
+## 13 Jan 2021
 ### Added
 
 ### Changed
+- httplib interceptor removed in prior gorilla/mux middlewares for better experience, I will think about how package is helpful 
+- pgxs 
 
 ### Fixed
 
 ### Removed
+- rpcd package
+- clog package
 
 ## Released [v0.2.0]
 
