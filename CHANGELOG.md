@@ -4,9 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v0.6.0
+## [Unreleased] v0.7.0
 
 ## 11 Feb 2021
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+
+## Released [v0.5.1]
+
+## 11 Feb 2021
+
 ### Added
 
 ### Changed
@@ -22,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Released [v0.5.1]
 
 ## 22 Jan 2021
+
 ### Added
 - strings unwrap quotes method
 
@@ -29,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Released [v0.5.0]
 
 ## 13 Jan 2021
+
 ### Changed
 - httplib interceptor removed in prior gorilla/mux middlewares for better experience, I will think about how package is helpful 
 - pgxs
@@ -41,6 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Released [v0.2.0]
 
 ## 10 Jan 2021
+
 ### Added
 - `httplib` interceptor JSON Response methods with debug zap logging
 
