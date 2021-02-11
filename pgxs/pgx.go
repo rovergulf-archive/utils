@@ -11,13 +11,11 @@ import (
 	"go.uber.org/zap"
 	"io/ioutil"
 	"os"
-	"path"
 	"strings"
 )
 
-type PgConf struct {
+type Config struct {
 	ConnString      string      `json:"conn_string" yaml:"conn_string"`
-	ServiceName     string      `json:"service" yaml:"service"`
 	ActualSchema    string      `json:"actual_schema" yaml:"schema_path"`
 	MigrationSchema string      `json:"migration_schema" yaml:"migration_schema_path"`
 	DataDir         string      `json:"data_dir" yaml:"data_dir"`
@@ -27,24 +25,71 @@ type PgConf struct {
 	User            string      `json:"user" yaml:"user"`
 	Password        string      `json:"password" yaml:"password"`
 	SslMode         string      `json:"ssl_mode" yaml:"ssl_mode"`
-	SslPath         string      `json:"ssl_path" yaml:"ssl_path"`
 	TLS             SSL         `json:"tls" yaml:"tls"`
 	TLSConfig       *tls.Config `json:"-" yaml:"-"`
 }
 
 type SSL struct {
+	Enabled  bool   `json:"enabled" yaml:"enabled"`
+	Verify   bool   `json:"verify" yaml:"verify"`
 	CaPath   string `json:"ca" yaml:"ca"`
 	KeyPath  string `json:"key" yaml:"key"`
 	CertPath string `json:"cert" yaml:"cert"`
-	Insecure bool   `json:"insecure" yaml:"insecure"`
 }
 
 type Repo struct {
-	ServiceName string             `json:"service" yaml:"service"`
-	Logger      *zap.SugaredLogger `json:"-" yaml:"-"`
-	Pool        *pgxpool.Pool      `json:"-" yaml:"-"`
-	Config      *PgConf
-	connected   bool
+	Logger *zap.SugaredLogger `json:"-" yaml:"-"`
+	Pool   *pgxpool.Pool      `json:"-" yaml:"-"`
+	Config *Config            `json:"-" yaml:"-"`
+}
+
+func New(ctx context.Context, lg *zap.SugaredLogger, conf *Config) (*Repo, error) {
+	if conf == nil {
+		return nil, fmt.Errorf("%s", "Config should'n be nil")
+	}
+
+	s := &Repo{
+		Logger: lg,
+		Config: conf,
+	}
+
+	tlsConf := new(tls.Config)
+
+	if s.Config.TLS.Enabled {
+		if len(s.Config.TLS.CaPath) > 0 {
+			s.Logger.Debugf("Client CA File would be used for TLS connection")
+			caCert, err := ioutil.ReadFile(s.Config.TLS.CaPath)
+			if err != nil {
+				s.Logger.Errorf("Unable to load CA cert: %s", err)
+				return nil, err
+			}
+			caCertPool := x509.NewCertPool()
+
+			caCertPool.AppendCertsFromPEM(caCert)
+
+			tlsConf.ClientCAs = caCertPool
+			tlsConf.InsecureSkipVerify = s.Config.TLS.Verify
+		}
+
+		if len(s.Config.TLS.CertPath) > 0 && len(s.Config.TLS.KeyPath) > 0 {
+			cert, err := tls.LoadX509KeyPair(s.Config.TLS.CertPath, s.Config.TLS.KeyPath)
+			if err != nil {
+				s.Logger.Errorf("Unable to load tls keypair: %s", err)
+				return nil, err
+			}
+			tlsConf.Certificates = append(tlsConf.Certificates, cert)
+		}
+	}
+
+	pool, err := s.ConnectDB(ctx, tlsConf)
+	if err != nil {
+		s.Logger.Errorf("Unable to connect psql intsance: %s", err)
+		return nil, err
+	}
+
+	s.Pool = pool
+
+	return s, nil
 }
 
 func (db *Repo) PoolFromString(ctx context.Context, connString string) (*pgxpool.Pool, error) {
@@ -53,7 +98,7 @@ func (db *Repo) PoolFromString(ctx context.Context, connString string) (*pgxpool
 
 //
 func (db *Repo) ConnectDB(ctx context.Context, tlsConfig *tls.Config) (*pgxpool.Pool, error) {
-	conf, err := db.GetConfig()
+	conf, err := db.GetPgxConfig()
 	if err != nil {
 		db.Logger.Errorf("Unable to prepare postgres config: %s", err)
 		return nil, err
@@ -63,7 +108,7 @@ func (db *Repo) ConnectDB(ctx context.Context, tlsConfig *tls.Config) (*pgxpool.
 	return pgxpool.ConnectConfig(ctx, conf)
 }
 
-func (db *Repo) GetPgxPoolConnString() string {
+func (db *Repo) GetPgxConnString() string {
 	dbUrl := os.Getenv("DB_URL")
 	if len(dbUrl) > 0 {
 		return dbUrl
@@ -93,27 +138,8 @@ func (db *Repo) GetPgxPoolConnString() string {
 	return connString
 }
 
-func (db *Repo) GetPgxPoolString() string {
-	return fmt.Sprintf("host=%s port=%s database=%s user=%s password=%s sslmode=%s",
-		db.Config.Host,
-		db.Config.Port,
-		db.Config.Name,
-		db.Config.User,
-		db.Config.Password,
-		db.Config.SslMode)
-}
-
 func (db *Repo) GetPgxConfig() (*pgxpool.Config, error) {
-	c, err := pgxpool.ParseConfig(db.GetPgxPoolString())
-	if err != nil {
-		return nil, err
-	}
-
-	return c, nil
-}
-
-func (db *Repo) GetConfig() (*pgxpool.Config, error) {
-	c, err := db.GetPgxConfig()
+	c, err := pgxpool.ParseConfig(db.GetPgxConnString())
 	if err != nil {
 		return nil, err
 	}
@@ -126,66 +152,6 @@ func (db *Repo) GracefulShutdown(ctx context.Context) {
 		db.Pool.Close()
 		db.Logger.Infof("Successfully closed postgreSQL connection pool")
 	}
-}
-
-func NewSecurePool(ctx context.Context, lg *zap.SugaredLogger, serviceName string, pgconf *PgConf) (Repo, error) {
-	if pgconf == nil {
-		return Repo{}, fmt.Errorf("%s", "Config should'n be nil")
-	}
-
-	s := Repo{
-		Logger:      lg,
-		ServiceName: serviceName,
-		Config:      pgconf,
-	}
-
-	conf := new(tls.Config)
-
-	caFile := path.Join(s.Config.SslPath, s.Config.TLS.CaPath)
-	if len(caFile) > len(s.Config.SslPath) {
-		s.Logger.Debugf("Client CA File would be used for TLS connection")
-		caCert, err := ioutil.ReadFile(caFile)
-		if err != nil {
-			s.Logger.Fatal(err)
-		}
-		caCertPool := x509.NewCertPool()
-
-		caCertPool.AppendCertsFromPEM(caCert)
-
-		conf.ClientCAs = caCertPool
-		conf.InsecureSkipVerify = s.Config.TLS.Insecure
-	}
-
-	pool, err := s.ConnectDB(ctx, conf)
-	if err != nil {
-		s.Logger.Errorf("Unable to connect psql intsance: %s", err)
-		return s, err
-	}
-
-	s.Pool = pool
-
-	return s, nil
-}
-
-func NewPool(ctx context.Context, lg *zap.SugaredLogger, serviceName string, pgconf *PgConf) (Repo, error) {
-	if pgconf == nil {
-		return Repo{}, fmt.Errorf("%s", "Config should'n be nil")
-	}
-
-	s := Repo{
-		Logger:      lg,
-		ServiceName: serviceName,
-		Config:      pgconf,
-	}
-
-	pool, err := s.ConnectDB(ctx, nil)
-	if err != nil {
-		s.Logger.Errorf("Unable to connect psql intsance: %s", err)
-		return s, err
-	}
-	s.Pool = pool
-
-	return s, nil
 }
 
 //

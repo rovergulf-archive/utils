@@ -21,22 +21,21 @@ type NatsSub struct {
 	sub      *nats.Subscription
 }
 
-func NewSubscriptionWithTracing(ctx context.Context, lg *zap.SugaredLogger, tracer opentracing.Tracer, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
+func NewSubscriptionWithTracing(lg *zap.SugaredLogger, tracer opentracing.Tracer, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
 	if tracer == nil {
 		return nil, fmt.Errorf("'tracer opentracting.Tracer' provided as nil")
 	}
 
-	sub, err := NewSubscription(ctx, lg, brokerAddr, subject, opts...)
+	sub, err := NewSubscription(lg, brokerAddr, subject, opts...)
 	if err != nil {
 		return nil, err
 	}
-
 	sub.Tracer = tracer
 
 	return sub, nil
 }
 
-func NewSubscription(ctx context.Context, lg *zap.SugaredLogger, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
+func NewSubscription(lg *zap.SugaredLogger, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
 	c := new(NatsSub)
 
 	c.Logger = lg
@@ -47,7 +46,7 @@ func NewSubscription(ctx context.Context, lg *zap.SugaredLogger, brokerAddr, sub
 
 	opts = append(opts, nats.Name("chan-"+subject))
 
-	enc, err := NewEncodedConn(ctx, brokerAddr, opts...)
+	enc, err := NewEncodedConn(lg, brokerAddr, opts...)
 	if err != nil {
 		c.Logger.Errorf("Unable to create NATS encoded connection: %s", err)
 		return nil, err

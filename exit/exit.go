@@ -8,6 +8,7 @@ import (
 	"syscall"
 )
 
+// DEPRECATED would be removed in a few versions
 // Listen will listen to OS signals (currently SIGINT, SIGKILL, SIGTERM)
 // and will trigger the callback when signal are received from OS
 func Listen(fn func(os.Signal)) {
