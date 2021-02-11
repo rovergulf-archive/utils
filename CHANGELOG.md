@@ -6,14 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v0.6.0
 
-## 23 Jan 2021
+## 11 Feb 2021
 ### Added
 
 ### Changed
+- `pgxs` package Api changed
+- mq/nats - removed ack manager usage
 
 ### Fixed
 
 ### Removed
+- `hub` package
 
 
 ## Released [v0.5.1]

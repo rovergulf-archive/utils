@@ -8,7 +8,20 @@ import (
 	"time"
 )
 
-// Listen will listen to OS signals (currently SIGINT, SIGKILL, SIGTERM)
+func Listen(fn func(os.Signal)) {
+	go func() {
+		// we use buffered to mitigate losing the signal
+		sigchan := make(chan os.Signal, 1)
+		signal.Notify(sigchan, os.Interrupt, os.Kill, syscall.SIGTERM, syscall.SIGHUP, syscall.SIGQUIT)
+
+		sig := <-sigchan
+		if fn != nil {
+			fn(sig)
+		}
+	}()
+}
+
+// ListenExit will listen to OS signals (currently SIGINT, SIGKILL, SIGTERM)
 // and will trigger the callback when signal are received from OS
 func ListenExit(fn func(os.Signal)) {
 	go func() {
@@ -23,6 +36,7 @@ func ListenExit(fn func(os.Signal)) {
 	}()
 }
 
+// AwaitReload waits for
 func AwaitReload(lg *zap.SugaredLogger, sigChan chan os.Signal, closerWait chan bool, closer func()) chan bool {
 	// The blocking signal handler that main() waits on.
 	out := make(chan bool)
