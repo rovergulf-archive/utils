@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## Released [v0.6.2]
+
+## 11 Feb 2021
+
+### Fixed
+- `natsmq` logging
+
+
 ## Released [v0.6.1]
 
 ## 11 Feb 2021

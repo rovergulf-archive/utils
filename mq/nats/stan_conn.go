@@ -18,30 +18,22 @@ type StanConn struct {
 	logger   *zap.SugaredLogger
 }
 
-//func NewStreamConn(c *Config, clientId string, opts ...stan.Option) (stan.Conn, error) {
-//
-//	// Send PINGs every 15 seconds, and fail after 5 PINGs without any response.
-//	opts = append(opts, stan.SetConnectionLostHandler(func(_ stan.Conn, err error) {
-//		log.Printf("! Nats streaming connection lost: %s", err)
-//	}))
-//	opts = append(opts, stan.Pings(15, 5))
-//	opts = append(opts, stan.PubAckWait(stan.DefaultAckWait)) // 30 * time.Second
-//
-//	sc, err := stan.Connect(c.ClusterId, clientId, opts...)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	//log.Printf("[%s] Successfully connected to '%s' NATS-streaming cluster", clientId, clusterId)
-//	return sc, nil
-//}
+func NewStanConnWithTracer(lg *zap.SugaredLogger, c *Config, clientId string, tracer opentracing.Tracer, opts ...stan.Option) (*StanConn, error) {
+	sc, err := NewStanConn(lg, c, clientId, opts...)
+	if err != nil {
+		return nil, err
+	}
+	sc.Tracer = tracer
+
+	return sc, nil
+}
 
 func NewStanConn(lg *zap.SugaredLogger, c *Config, clientId string, opts ...stan.Option) (*StanConn, error) {
 	s := new(StanConn)
 	s.logger = lg
 	s.clientId = fmt.Sprintf("%s-%d", clientId, time.Now().Unix())
 
-	nopts := setupDefaultNatsConnOptions(lg, nil)
+	nopts := setupDefaultNatsConnOptions(lg.Named("nats"), nil)
 	nopts = append(nopts, nats.Name(clientId))
 
 	nc, err := nats.Connect(c.Broker, nopts...)
@@ -51,7 +43,7 @@ func NewStanConn(lg *zap.SugaredLogger, c *Config, clientId string, opts ...stan
 	}
 
 	opts = append(opts, stan.SetConnectionLostHandler(func(_ stan.Conn, err error) {
-		log.Printf("! Nats streaming connection lost: %s", err)
+		s.logger.Warnf("Connection lost: %s", err)
 	}))
 	opts = append(opts, stan.Pings(15, 5))
 	opts = append(opts, stan.PubAckWait(stan.DefaultAckWait)) // 30 * time.Second

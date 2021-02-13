@@ -2,6 +2,7 @@ package natsmq
 
 import (
 	"context"
+	"fmt"
 	"github.com/nats-io/stan.go"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
@@ -34,16 +35,16 @@ func NewChanSubWithTracer(lg *zap.SugaredLogger, t opentracing.Tracer, c *Config
 // creating subscription with a whole service lifetime context
 func NewChanSub(lg *zap.SugaredLogger, c *Config, channel string, sopts ...stan.Option) (*StanSub, error) {
 	s := new(StanSub)
-	s.Logger = lg
+	s.Logger = lg.Named("stan-sub-" + channel)
 	s.messages = make(chan *stan.Msg)
 	s.errors = make(chan error)
 	s.quit = make(chan struct{})
 	s.channel = channel
 
 	ch := strings.Split(channel, ",")
-	clientId := strings.Join(ch, "-") + "-chan"
+	clientId := fmt.Sprintf("%s-chan-%d", strings.Join(ch, "-"), time.Now().Unix())
 
-	conn, err := NewStanConn(lg, c, clientId, sopts...)
+	conn, err := NewStanConn(s.Logger, c, clientId, sopts...)
 	if err != nil {
 		s.Logger.Errorf("Unable to connect [%s:%s]: %s", clientId, c.Broker, err)
 		return nil, err
