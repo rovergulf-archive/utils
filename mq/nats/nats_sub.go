@@ -6,6 +6,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
+	"time"
 )
 
 type NatsSub struct {
@@ -16,6 +17,7 @@ type NatsSub struct {
 	errors   chan error
 	quit     chan struct{}
 	subject  string
+	name     string
 	response string
 	conn     *nats.EncodedConn
 	sub      *nats.Subscription
@@ -38,15 +40,16 @@ func NewSubscriptionWithTracing(lg *zap.SugaredLogger, tracer opentracing.Tracer
 func NewSubscription(lg *zap.SugaredLogger, brokerAddr, subject string, opts ...nats.Option) (*NatsSub, error) {
 	c := new(NatsSub)
 
-	c.Logger = lg
+	c.name = fmt.Sprintf("chan-%s-%d", subject, time.Now().Unix())
+	c.Logger = lg.Named("nats-sub-" + subject)
 	c.messages = make(chan *nats.Msg)
 	c.errors = make(chan error)
 	c.quit = make(chan struct{})
 	c.subject = subject
 
-	opts = append(opts, nats.Name("chan-"+subject))
+	opts = append(opts, nats.Name(c.name))
 
-	enc, err := NewEncodedConn(lg, brokerAddr, opts...)
+	enc, err := NewEncodedConn(c.Logger, brokerAddr, opts...)
 	if err != nil {
 		c.Logger.Errorf("Unable to create NATS encoded connection: %s", err)
 		return nil, err
