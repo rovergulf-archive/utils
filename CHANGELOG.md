@@ -117,7 +117,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v0.6.1...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v0.6.2...main
+[v0.6.2]: https://github.com/rovergulf/utils/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/rovergulf/utils/compare/v0.6.0...v0.6.1
 [v0.6.0]: https://github.com/rovergulf/utils/compare/v0.5.1...v0.6.0
 [v0.5.1]: https://github.com/rovergulf/utils/compare/v0.5.0...v0.5.1
