@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released [v0.6.2]
 
-## 11 Feb 2021
+## 14 Feb 2021
 
 ### Fixed
 - `natsmq` logging
@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released [v0.6.1]
 
-## 11 Feb 2021
+## 14 Feb 2021
 
 ### Fixed
 - `pgxs` tls connection setup
