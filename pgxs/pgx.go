@@ -45,45 +45,43 @@ type Repo struct {
 
 func New(ctx context.Context, lg *zap.SugaredLogger, conf *Config) (*Repo, error) {
 	if conf == nil {
-		return nil, fmt.Errorf("%s", "Config should'n be nil")
+		return nil, fmt.Errorf("pxgs: Config should'n be nil")
 	}
 
 	s := &Repo{
-		Logger: lg,
+		Logger: lg.Named("pgxs"),
 		Config: conf,
 	}
 
-	tlsConf := new(tls.Config)
-
 	if s.Config.TLS.Enabled {
+		s.Logger.Debugf("Client TLS connection enabled")
+		s.Config.TLSConfig = new(tls.Config)
 		if len(s.Config.TLS.CaPath) > 0 {
-			s.Logger.Debugf("Client CA File would be used for TLS connection")
 			caCert, err := ioutil.ReadFile(s.Config.TLS.CaPath)
 			if err != nil {
-				s.Logger.Errorf("Unable to load CA cert: %s", err)
-				return nil, err
+				return nil, fmt.Errorf("pgxs: Unable to load CA cert: %s", err)
 			}
 			caCertPool := x509.NewCertPool()
 
 			caCertPool.AppendCertsFromPEM(caCert)
 
-			tlsConf.ClientCAs = caCertPool
-			tlsConf.InsecureSkipVerify = s.Config.TLS.Verify
+			s.Config.TLSConfig.ClientCAs = caCertPool
+			s.Config.TLSConfig.InsecureSkipVerify = s.Config.TLS.Verify
 		}
 
 		if len(s.Config.TLS.CertPath) > 0 && len(s.Config.TLS.KeyPath) > 0 {
 			cert, err := tls.LoadX509KeyPair(s.Config.TLS.CertPath, s.Config.TLS.KeyPath)
 			if err != nil {
-				s.Logger.Errorf("Unable to load tls keypair: %s", err)
-				return nil, err
+				return nil, fmt.Errorf("pgxs: Unable to load tls keypair: %s", err)
 			}
-			tlsConf.Certificates = append(tlsConf.Certificates, cert)
+			s.Config.TLSConfig.Certificates = append(s.Config.TLSConfig.Certificates, cert)
 		}
+	} else {
+		s.Logger.Debugf("Client TLS connection disabled")
 	}
 
-	pool, err := s.ConnectDB(ctx, tlsConf)
+	pool, err := s.ConnectDB(ctx, s.Config.TLSConfig)
 	if err != nil {
-		s.Logger.Errorf("Unable to connect psql intsance: %s", err)
 		return nil, err
 	}
 
@@ -100,8 +98,7 @@ func (db *Repo) PoolFromString(ctx context.Context, connString string) (*pgxpool
 func (db *Repo) ConnectDB(ctx context.Context, tlsConfig *tls.Config) (*pgxpool.Pool, error) {
 	conf, err := db.GetPgxConfig()
 	if err != nil {
-		db.Logger.Errorf("Unable to prepare postgres config: %s", err)
-		return nil, err
+		return nil, fmt.Errorf("pgxs: Unable to prepare postgres config: %s", err)
 	}
 	conf.ConnConfig.TLSConfig = tlsConfig
 
@@ -141,13 +138,13 @@ func (db *Repo) GetPgxConnString() string {
 func (db *Repo) GetPgxConfig() (*pgxpool.Config, error) {
 	c, err := pgxpool.ParseConfig(db.GetPgxConnString())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("pgxs: unable to parse pgx config: %s", err)
 	}
 
 	return c, nil
 }
 
-func (db *Repo) GracefulShutdown(ctx context.Context) {
+func (db *Repo) GracefulShutdown() {
 	if db.Pool != nil {
 		db.Pool.Close()
 		db.Logger.Infof("Successfully closed postgreSQL connection pool")
