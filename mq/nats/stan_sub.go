@@ -22,6 +22,13 @@ type StanSub struct {
 	channel  string
 }
 
+type MessageInfo struct {
+	Nuid      string `json:"nuid" yaml:"nuid"`
+	Channel   string `json:"channel" yaml:"channel"`
+	Sequence  uint64 `json:"sequence" yaml:"sequence"`
+	Timestamp int64  `json:"timestamp" yaml:"timestamp"`
+}
+
 func NewChanSubWithTracer(c *StanSubOpts, t opentracing.Tracer) (*StanSub, error) {
 	ns, err := NewChanSub(c)
 	if err != nil {
@@ -44,11 +51,11 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	ns.channel = c.Channel
 
 	ch := strings.Split(c.Channel, ",")
-	clientId := fmt.Sprintf("%s-chan-%d", strings.Join(ch, "-"), time.Now().Unix())
+	c.ClientId = fmt.Sprintf("%s-chan-%d", strings.Join(ch, "-"), time.Now().Unix())
 
 	conn, err := NewStanConn(c.Config)
 	if err != nil {
-		ns.Logger.Errorf("Unable to connect [%s:%s]: %s", clientId, c.Broker, err)
+		ns.Logger.Errorf("Unable to connect [%s:%s]: %s", c.ClientId, c.Broker, err)
 		return nil, err
 	}
 	ns.conn = conn
@@ -63,16 +70,16 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 		ns.messages <- msg
 	}, c.Opts...)
 	if err != nil {
-		ns.Logger.Errorf("Unable to subscribe [%s: %s]: %s", clientId, ns.channel, err)
+		ns.Logger.Errorf("Unable to subscribe [%s: %s]: %s", c.ClientId, ns.channel, err)
 		return nil, err
 	}
 	ns.Sub = sub
 
-	ns.Logger.Infof("[%s] NATS subscription started for '%s' awating for messages", clientId, ns.channel)
+	ns.Logger.Infof("[%s] NATS subscription started for '%s' awating for messages", c.ClientId, ns.channel)
 	return ns, nil
 }
 
-type StanSubHandler func(data []byte, sequence uint64, reply string) error
+type StanSubHandler func(data []byte, info *MessageInfo) error
 
 func (ns *StanSub) StartConsumption(ctx context.Context, handler StanSubHandler) {
 loop:
@@ -87,12 +94,18 @@ loop:
 			if ns.Tracer != nil {
 				span = ns.Tracer.StartSpan(ns.channel)
 				span.SetTag("sequence", msg.Sequence)
+				span.SetTag("sequence", msg.Sequence)
 				ctx = opentracing.ContextWithSpan(ctx, span)
 			}
 
-			msgNuid := nuid.Next()
-			msg.Reply = msgNuid
-			if err := handler(msg.Data, msg.Sequence, msgNuid); err != nil {
+			info := &MessageInfo{
+				Nuid:      nuid.Next(),
+				Sequence:  msg.Sequence,
+				Timestamp: msg.Timestamp,
+				Channel:   ns.channel,
+			}
+
+			if err := handler(msg.Data, info); err != nil {
 				ns.Logger.Errorf("Unable to handle nats '%s' subscription message: %s", ns.channel, err)
 				ns.errors <- err
 			} else {
@@ -103,7 +116,7 @@ loop:
 				ns.Logger.Infof("Unable to respond nats message: %s", err)
 			} else {
 				ns.Logger.Infow("Successfully acked",
-					"channel", ns.channel, "sequence", msg.Sequence, "nuid", msg.Reply)
+					"channel", ns.channel, "sequence", msg.Sequence, "nuid", info.Nuid)
 			}
 
 			if span != nil {
