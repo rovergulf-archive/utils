@@ -3,6 +3,7 @@ package natsmq
 import (
 	"context"
 	"fmt"
+	"github.com/nats-io/nuid"
 	"github.com/nats-io/stan.go"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
@@ -89,7 +90,9 @@ loop:
 				ctx = opentracing.ContextWithSpan(ctx, span)
 			}
 
-			if err := handler(msg.Data, msg.Sequence, msg.Reply); err != nil {
+			msgNuid := nuid.Next()
+			msg.Reply = msgNuid
+			if err := handler(msg.Data, msg.Sequence, msgNuid); err != nil {
 				ns.Logger.Errorf("Unable to handle nats '%s' subscription message: %s", ns.channel, err)
 				ns.errors <- err
 			} else {
@@ -100,7 +103,7 @@ loop:
 				ns.Logger.Infof("Unable to respond nats message: %s", err)
 			} else {
 				ns.Logger.Infow("Successfully acked",
-					"channel", ns.channel, "sequence", msg.Sequence, "reply", msg.Reply)
+					"channel", ns.channel, "sequence", msg.Sequence, "nuid", msg.Reply)
 			}
 
 			if span != nil {

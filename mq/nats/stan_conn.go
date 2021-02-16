@@ -92,6 +92,7 @@ func (sc *StanConn) SendAsyncMessage(topic string, data interface{}, handler sta
 	if sc.client == nil {
 		return
 	}
+
 	if handler == nil {
 		handler = sc.DefaultAckHandler
 	}
