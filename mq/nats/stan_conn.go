@@ -7,7 +7,6 @@ import (
 	"github.com/nats-io/stan.go"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
-	"log"
 	"time"
 )
 
@@ -18,8 +17,8 @@ type StanConn struct {
 	logger   *zap.SugaredLogger
 }
 
-func NewStanConnWithTracer(lg *zap.SugaredLogger, c *Config, clientId string, tracer opentracing.Tracer, opts ...stan.Option) (*StanConn, error) {
-	sc, err := NewStanConn(lg, c, clientId, opts...)
+func NewStanConnWithTracer(c *Config, tracer opentracing.Tracer) (*StanConn, error) {
+	sc, err := NewStanConn(c)
 	if err != nil {
 		return nil, err
 	}
@@ -28,13 +27,13 @@ func NewStanConnWithTracer(lg *zap.SugaredLogger, c *Config, clientId string, tr
 	return sc, nil
 }
 
-func NewStanConn(lg *zap.SugaredLogger, c *Config, clientId string, opts ...stan.Option) (*StanConn, error) {
+func NewStanConn(c *Config) (*StanConn, error) {
 	s := new(StanConn)
-	s.logger = lg
-	s.clientId = fmt.Sprintf("%s-%d", clientId, time.Now().Unix())
+	s.logger = c.Logger
+	s.clientId = fmt.Sprintf("%s-%d", c.ClientId, time.Now().Unix())
 
-	nopts := setupDefaultNatsConnOptions(lg.Named("nats"), nil)
-	nopts = append(nopts, nats.Name(clientId))
+	nopts := setupDefaultNatsConnOptions(c.Logger.Named("nats"), nil)
+	nopts = append(nopts, nats.Name(c.ClientId))
 
 	nc, err := nats.Connect(c.Broker, nopts...)
 	if err != nil {
@@ -42,14 +41,14 @@ func NewStanConn(lg *zap.SugaredLogger, c *Config, clientId string, opts ...stan
 		return nil, err
 	}
 
-	opts = append(opts, stan.SetConnectionLostHandler(func(_ stan.Conn, err error) {
+	c.StanConn = append(c.StanConn, stan.SetConnectionLostHandler(func(_ stan.Conn, err error) {
 		s.logger.Warnf("Connection lost: %s", err)
 	}))
-	opts = append(opts, stan.Pings(15, 5))
-	opts = append(opts, stan.PubAckWait(stan.DefaultAckWait)) // 30 * time.Second
-	opts = append(opts, stan.NatsConn(nc))
+	c.StanConn = append(c.StanConn, stan.Pings(15, 5))
+	c.StanConn = append(c.StanConn, stan.PubAckWait(stan.DefaultAckWait)) // 30 * time.Second
+	c.StanConn = append(c.StanConn, stan.NatsConn(nc))
 
-	sc, err := stan.Connect(c.ClusterId, clientId, opts...)
+	sc, err := stan.Connect(c.ClusterId, c.ClientId, c.StanConn...)
 	if err != nil {
 		s.logger.Errorf("Failed to set stan connection: %s", err)
 		return nil, err
@@ -75,14 +74,6 @@ func (sc *StanConn) DefaultAckHandler(nuid string, err error) {
 	}
 }
 
-func DefaultAckHandler(nuid string, err error) {
-	if err != nil {
-		log.Printf("! Error publishing message [nuid: %s]: %s", nuid, err)
-	} else {
-		log.Printf("Received ack for message [nuid: %s]", nuid)
-	}
-}
-
 func (sc *StanConn) SendMessage(topic string, data interface{}) {
 	if sc.client == nil {
 		return
@@ -90,7 +81,7 @@ func (sc *StanConn) SendMessage(topic string, data interface{}) {
 
 	payload, err := json.Marshal(data)
 	if err != nil {
-		log.Printf("Unable to marshal data: %s", err)
+		sc.logger.Errorf("Unable to marshal data: %s", err)
 		return
 	}
 
@@ -111,14 +102,14 @@ func (sc *StanConn) SendAsyncMessage(topic string, data interface{}, handler sta
 
 	payload, err := json.Marshal(data)
 	if err != nil {
-		log.Printf("Unable to marshal data: %s", err)
+		sc.logger.Errorf("Unable to marshal data: %s", err)
 		return
 	}
 
 	res, err := sc.client.PublishAsync(topic, payload, handler)
 	if err != nil {
-		log.Printf("Error publishing message [%s: %s] due: %s", sc.clientId, topic, err)
+		sc.logger.Errorf("Error publishing message [%s: %s] due: %s", sc.clientId, topic, err)
 	} else {
-		log.Printf("Published to [%s]: [nuid: %s]", topic, res)
+		sc.logger.Infof("Published to [%s]: [nuid: %s]", topic, res)
 	}
 }
