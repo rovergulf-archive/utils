@@ -77,7 +77,9 @@ func NewChanSub(lg *zap.SugaredLogger, c *Config, channel string, sopts ...stan.
 	return s, nil
 }
 
-func (s *StanSub) StartConsumption(ctx context.Context, handler func(data []byte) error) {
+type StanSubHandler func(data []byte, sequence uint64, reply string) error
+
+func (s *StanSub) StartConsumption(ctx context.Context, handler StanSubHandler) {
 loop:
 	for {
 		select {
@@ -94,7 +96,7 @@ loop:
 				ctx = opentracing.ContextWithSpan(ctx, span)
 			}
 
-			if err := handler(msg.Data); err != nil {
+			if err := handler(msg.Data, msg.Sequence, msg.Reply); err != nil {
 				s.Logger.Errorf("Unable to handle nats '%s' subscription message: %s", s.channel, err)
 				s.errors <- err
 			} else {
