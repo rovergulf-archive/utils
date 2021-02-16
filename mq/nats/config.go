@@ -32,7 +32,7 @@ func (c *Config) GetNatsUserInfo() nats.Option {
 
 type NatsSubOpts struct {
 	Sub     nats.SubscriptionType `json:"-" yaml:"-"`
-	Channel string                `json:"subject" yaml:"subject"`
+	Subject string                `json:"subject" yaml:"subject"`
 	*Config
 }
 

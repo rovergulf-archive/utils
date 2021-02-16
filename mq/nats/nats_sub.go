@@ -20,15 +20,15 @@ type NatsSub struct {
 	name     string
 	response string
 	conn     *nats.EncodedConn
-	sub      *nats.Subscription
+	Sub      *nats.Subscription
 }
 
-func NewSubscriptionWithTracing(c *NatsSubOpts, subject string, tracer opentracing.Tracer) (*NatsSub, error) {
+func NewSubscriptionWithTracing(c *NatsSubOpts, tracer opentracing.Tracer) (*NatsSub, error) {
 	if tracer == nil {
 		return nil, fmt.Errorf("'tracer opentracting.Tracer' provided as nil")
 	}
 
-	sub, err := NewSubscription(c, subject)
+	sub, err := NewSubscription(c)
 	if err != nil {
 		return nil, err
 	}
@@ -37,38 +37,38 @@ func NewSubscriptionWithTracing(c *NatsSubOpts, subject string, tracer opentraci
 	return sub, nil
 }
 
-func NewSubscription(c *NatsSubOpts, subject string) (*NatsSub, error) {
-	s := new(NatsSub)
+func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
+	ns := new(NatsSub)
 
-	s.name = fmt.Sprintf("chan-%s-%d", subject, time.Now().Unix())
-	s.Logger = c.Logger.Named("nats-sub-" + subject)
-	s.messages = make(chan *nats.Msg)
-	s.errors = make(chan error)
-	s.quit = make(chan struct{})
-	s.subject = subject
+	ns.name = fmt.Sprintf("chan-%s-%d", c.Subject, time.Now().Unix())
+	ns.Logger = c.Logger.Named("nats-sub-" + c.Subject)
+	ns.messages = make(chan *nats.Msg)
+	ns.errors = make(chan error)
+	ns.quit = make(chan struct{})
+	ns.subject = c.Subject
 
-	c.NatsConn = append(c.NatsConn, nats.Name(s.name))
+	c.NatsConn = append(c.NatsConn, nats.Name(ns.name))
 
 	enc, err := NewEncodedConn(c.Config)
 	if err != nil {
-		s.Logger.Errorf("Unable to create NATS encoded connection: %s", err)
+		ns.Logger.Errorf("Unable to create NATS encoded connection: %s", err)
 		return nil, err
 	}
 
-	s.conn = enc
+	ns.conn = enc
 
-	sub, err := s.conn.Subscribe(subject, func(msg *nats.Msg) {
-		s.messages <- msg
+	sub, err := ns.conn.Subscribe(ns.subject, func(msg *nats.Msg) {
+		ns.messages <- msg
 	})
 	if err != nil {
-		s.Logger.Errorf("Unable to start scheduler subject subscription: %s", err)
+		ns.Logger.Errorf("Unable to start scheduler subject subscription: %s", err)
 		return nil, err
 	}
 
-	s.sub = sub
+	ns.Sub = sub
 
-	s.Logger.Infof("Initialized NATS subscription at '%s' subject", s.subject)
-	return s, nil
+	ns.Logger.Infof("Initialized NATS subscription at '%s' subject", ns.subject)
+	return ns, nil
 }
 
 type NatsSubHandler func(data []byte, reply string) error
@@ -90,11 +90,13 @@ loop:
 			var span opentracing.Span
 
 			// check if we have available handler
-			delivered, _ := ns.sub.Delivered()
+			delivered, _ := ns.Sub.Delivered()
 			ns.Logger.Infof("Successfully received '%s' message with increment: %d", ns.subject, delivered)
 
 			if ns.Tracer != nil {
 				span = ns.Tracer.StartSpan(fmt.Sprintf("[%s:%d]", ns.subject, delivered))
+				span.SetTag("subject", ns.subject)
+				span.SetTag("m_reply", m.Reply)
 				ctx = opentracing.ContextWithSpan(ctx, span)
 			}
 
@@ -131,5 +133,5 @@ func (ns *NatsSub) Stop() error {
 		ns.conn.Drain()
 		ns.conn.Close()
 	}
-	return ns.sub.Unsubscribe()
+	return ns.Sub.Unsubscribe()
 }
