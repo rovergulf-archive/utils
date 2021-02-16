@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## Released [v0.8.2]
+
+## 16 Feb 2021
+
+### Fixed
+- `natsmq` named loggin
+
+### Removed
+- `natsmq` subscription.Delivered() method call
+
+
 ## Released [v0.8.0]
 
 ## 16 Feb 2021

@@ -67,13 +67,7 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	}
 	ns.Sub = sub
 
-	delivered, err := sub.Delivered()
-	if err != nil {
-		ns.Logger.Errorf("Unable to check subscrpition delivered count: %s", err)
-		return nil, err
-	}
-
-	ns.Logger.Infof("[%s] NATS subscription started for '%s' awating at delivered count %d", clientId, ns.channel, delivered)
+	ns.Logger.Infof("[%s] NATS subscription started for '%s' awating for messages", clientId, ns.channel)
 	return ns, nil
 }
 
