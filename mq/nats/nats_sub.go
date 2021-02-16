@@ -41,7 +41,7 @@ func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
 	ns := new(NatsSub)
 
 	ns.name = fmt.Sprintf("chan-%s-%d", c.Subject, time.Now().Unix())
-	ns.Logger = c.Logger.Named("nats-sub-" + c.Subject)
+	ns.Logger = c.Logger.Named("nats.sub-" + c.Subject)
 	ns.messages = make(chan *nats.Msg)
 	ns.errors = make(chan error)
 	ns.quit = make(chan struct{})

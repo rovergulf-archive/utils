@@ -3,7 +3,6 @@ package natsmq
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
@@ -29,13 +28,10 @@ func NewStanConnWithTracer(c *Config, tracer opentracing.Tracer) (*StanConn, err
 
 func NewStanConn(c *Config) (*StanConn, error) {
 	s := new(StanConn)
-	s.logger = c.Logger
+	s.logger = c.Logger.Named("stan")
 	s.clientId = fmt.Sprintf("%s-%d", c.ClientId, time.Now().Unix())
 
-	nopts := setupDefaultNatsConnOptions(c.Logger.Named("nats"), nil)
-	nopts = append(nopts, nats.Name(c.ClientId))
-
-	nc, err := nats.Connect(c.Broker, nopts...)
+	nc, err := NewConn(c)
 	if err != nil {
 		s.logger.Errorf("Failed to set nats server connection: %s", err)
 		return nil, err

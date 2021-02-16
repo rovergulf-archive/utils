@@ -36,7 +36,7 @@ func NewChanSubWithTracer(c *StanSubOpts, t opentracing.Tracer) (*StanSub, error
 // creating subscription with a whole service lifetime context
 func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	ns := new(StanSub)
-	ns.Logger = c.Logger.Named("stan-sub-" + c.Channel)
+	ns.Logger = c.Logger.Named("stan.sub-" + c.Channel)
 	ns.messages = make(chan *stan.Msg)
 	ns.errors = make(chan error)
 	ns.quit = make(chan struct{})
