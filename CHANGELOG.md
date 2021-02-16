@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v0.8.0
+## [Unreleased] v0.9.0
 
 ## 17 Feb 2021
 
@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+
+## Released [v0.8.3]
+
+## 16 Feb 2021
+
+### Fixed
+- `natsmq` nuid argument value
 
 
 ## Released [v0.8.2]
@@ -148,7 +156,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v0.7.0...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v0.8.3...main
+[v0.8.3]: https://github.com/rovergulf/utils/compare/v0.8.2...v0.8.3
+[v0.8.2]: https://github.com/rovergulf/utils/compare/v0.8.0...v0.8.2
 [v0.8.0]: https://github.com/rovergulf/utils/compare/v0.7.0...v0.8.0
 [v0.7.0]: https://github.com/rovergulf/utils/compare/v0.6.2...v0.7.0
 [v0.6.2]: https://github.com/rovergulf/utils/compare/v0.6.1...v0.6.2
