@@ -21,21 +21,22 @@ type StanSub struct {
 	channel  string
 }
 
-func NewChanSubWithTracer(lg *zap.SugaredLogger, t opentracing.Tracer, c *Config, channel string, opts ...stan.Option) (*StanSub, error) {
-	ns, err := NewChanSub(lg, c, channel, opts...)
+func NewChanSubWithTracer(c *StanSubOpts, channel string, t opentracing.Tracer) (*StanSub, error) {
+	ns, err := NewChanSub(c, channel)
 	if err != nil {
 		return nil, err
 	}
 
 	ns.Tracer = t
+	ns.conn.Tracer = t
 	return ns, nil
 }
 
 // NewChanSub creates connection with channel-named clientID
 // creating subscription with a whole service lifetime context
-func NewChanSub(lg *zap.SugaredLogger, c *Config, channel string, sopts ...stan.Option) (*StanSub, error) {
+func NewChanSub(c *StanSubOpts, channel string) (*StanSub, error) {
 	s := new(StanSub)
-	s.Logger = lg.Named("stan-sub-" + channel)
+	s.Logger = c.Logger.Named("stan-sub-" + channel)
 	s.messages = make(chan *stan.Msg)
 	s.errors = make(chan error)
 	s.quit = make(chan struct{})
@@ -44,7 +45,7 @@ func NewChanSub(lg *zap.SugaredLogger, c *Config, channel string, sopts ...stan.
 	ch := strings.Split(channel, ",")
 	clientId := fmt.Sprintf("%s-chan-%d", strings.Join(ch, "-"), time.Now().Unix())
 
-	conn, err := NewStanConn(s.Logger, c, clientId, sopts...)
+	conn, err := NewStanConn(c.Config)
 	if err != nil {
 		s.Logger.Errorf("Unable to connect [%s:%s]: %s", clientId, c.Broker, err)
 		return nil, err
@@ -53,14 +54,13 @@ func NewChanSub(lg *zap.SugaredLogger, c *Config, channel string, sopts ...stan.
 
 	// set subscription options for fault tolerance
 	// only ack manually
-	var opts []stan.SubscriptionOption
-	opts = append(opts, stan.SetManualAckMode())
-	opts = append(opts, stan.AckWait(60*time.Second))
-	opts = append(opts, stan.StartWithLastReceived())
+	c.Opts = append(c.Opts, stan.SetManualAckMode())
+	c.Opts = append(c.Opts, stan.AckWait(60*time.Second))
+	//c.Opts = append(c.Opts, stan.StartWithLastReceived())
 
 	sub, err := s.conn.client.Subscribe(channel, func(msg *stan.Msg) {
 		s.messages <- msg
-	}, opts...)
+	}, c.Opts...)
 	if err != nil {
 		s.Logger.Errorf("Unable to subscribe [%s: %s]: %s", clientId, channel, err)
 		return nil, err
@@ -89,7 +89,6 @@ loop:
 			break loop
 		case msg := <-s.messages:
 			var span opentracing.Span
-
 			if s.Tracer != nil {
 				span = s.Tracer.StartSpan(s.channel)
 				span.SetTag("sequence", msg.Sequence)

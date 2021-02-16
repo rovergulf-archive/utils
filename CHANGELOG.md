@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## Released [v0.8.0]
+
+## 16 Feb 2021
+
+### Added
+- `natsmq.NatsSubOpts` and `natsmq.StanSubOpts` specified for subscriptions only
+
+### Changed
+- `natsmq` methods only require nats config now
+
+
 ## Released [v0.7.0]
 
 ## 16 Feb 2021
@@ -127,6 +138,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/rovergulf/utils/compare/v0.7.0...main
+[v0.8.0]: https://github.com/rovergulf/utils/compare/v0.7.0...v0.8.0
 [v0.7.0]: https://github.com/rovergulf/utils/compare/v0.6.2...v0.7.0
 [v0.6.2]: https://github.com/rovergulf/utils/compare/v0.6.1...v0.6.2
 [v0.6.1]: https://github.com/rovergulf/utils/compare/v0.6.0...v0.6.1

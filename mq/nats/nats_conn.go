@@ -28,10 +28,10 @@ func setupDefaultNatsConnOptions(lg *zap.SugaredLogger, opts []nats.Option) []na
 	return opts
 }
 
-func NewConn(lg *zap.SugaredLogger, brokersAddr string, opts ...nats.Option) (*nats.Conn, error) {
-	opts = setupDefaultNatsConnOptions(lg.Named("nats"), opts)
+func NewConn(c *Config) (*nats.Conn, error) {
+	c.NatsConn = setupDefaultNatsConnOptions(c.Logger.Named("nats"), c.NatsConn)
 
-	nc, err := nats.Connect(brokersAddr, opts...)
+	nc, err := nats.Connect(c.Broker, c.NatsConn...)
 	if err != nil {
 		return nil, err
 	}
@@ -39,9 +39,9 @@ func NewConn(lg *zap.SugaredLogger, brokersAddr string, opts ...nats.Option) (*n
 	return nc, nil
 }
 
-func NewEncodedConn(lg *zap.SugaredLogger, brokersAddr string, opts ...nats.Option) (*nats.EncodedConn, error) {
+func NewEncodedConn(c *Config) (*nats.EncodedConn, error) {
 
-	nc, err := NewConn(lg, brokersAddr, opts...)
+	nc, err := NewConn(c)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func NewEncodedConn(lg *zap.SugaredLogger, brokersAddr string, opts ...nats.Opti
 	if err != nil {
 		return nil, err
 	} else {
-		lg.Infof("Successfully created nats.EncodedConn with '%s'", brokersAddr)
+		c.Logger.Infof("Successfully created nats.EncodedConn with '%s'", c.Broker)
 	}
 
 	return encoded, nil
