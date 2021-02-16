@@ -3,10 +3,9 @@ package scheduler
 import (
 	"container/heap"
 	"context"
-	"github.com/rovergulf/utils/clog"
 	"github.com/rovergulf/utils/datastructures/minheap"
 	"github.com/rovergulf/utils/storages"
-	"log"
+	"go.uber.org/zap"
 	"sync"
 	"time"
 )
@@ -16,33 +15,35 @@ type Scheduler struct {
 	eventHeap minheap.MinHeap
 	lock      *sync.RWMutex
 	onHandle  func(context.Context, []interface{})
+	logger    *zap.SugaredLogger
 }
 
-func NewScheduler(period time.Duration, quit chan struct{}, onHandle func(context.Context, []interface{}), dumpFileName string, flushDelay time.Duration) *Scheduler {
+func NewScheduler(lg *zap.SugaredLogger, period time.Duration, quit chan struct{}, onHandle func(context.Context, []interface{}), dumpFileName string, flushDelay time.Duration) *Scheduler {
 	s := new(Scheduler)
 
 	s.eventHeap = make(minheap.MinHeap, 0)
+	s.logger = lg.Named("scheduler")
 	heap.Init(&s.eventHeap)
 	s.lock = new(sync.RWMutex)
 	s.onHandle = onHandle
-	s.dump = storages.NewDump(dumpFileName, flushDelay, s.Flush, s.OnFlushComplete)
+	s.dump = storages.NewDump(s.logger, dumpFileName, flushDelay, s.Flush, s.OnFlushComplete)
 
 	var version int64
 	var recoverHeap minheap.MinHeap
 	err := s.dump.Recover(&version, &recoverHeap)
 	if err != nil {
-		clog.Errorf("Unable to recover from dump: %s", err)
+		s.logger.Errorf("Unable to recover from dump: %s", err)
 	} else {
 		if recoverHeap != nil {
 			s.eventHeap = recoverHeap
 			heap.Init(&s.eventHeap)
 		}
-		log.Printf("Recovered %d objects", s.eventHeap.Len())
+		s.logger.Infof("Recovered %d objects", s.eventHeap.Len())
 	}
 
 	s.dump.StartFlushThread()
 
-	log.Printf("Starting scheduler with %d period", period)
+	s.logger.Infof("Starting scheduler with %d period", period)
 	ticker := time.NewTicker(period)
 	go func() {
 		for {
@@ -54,13 +55,13 @@ func NewScheduler(period time.Duration, quit chan struct{}, onHandle func(contex
 
 				heapLen := s.eventHeap.Len()
 				if heapLen > 0 {
-					log.Printf("Current event heap length: %d", heapLen)
+					s.logger.Infof("Current event heap length: %d", heapLen)
 				}
 
 				var toProcess []interface{}
 				for s.eventHeap.Len() > 0 {
 					lastElem := s.eventHeap.Peek().(*minheap.PQItem)
-					log.Printf("Top head element sent time: %d; current time: %d", lastElem.Priority, currentTime)
+					s.logger.Infof("Top head element sent time: %d; current time: %d", lastElem.Priority, currentTime)
 
 					if lastElem.Priority > currentTime {
 						break
@@ -79,7 +80,7 @@ func NewScheduler(period time.Duration, quit chan struct{}, onHandle func(contex
 				}
 
 				if count > 0 {
-					log.Printf("Scheduler processed this run: %d", count)
+					s.logger.Infof("Scheduler processed this run: %d", count)
 				}
 
 			case <-quit:

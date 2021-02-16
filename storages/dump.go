@@ -28,7 +28,7 @@ func NewDump(lg *zap.SugaredLogger, filename string, flushDelay time.Duration, f
 	d.FlushDelay = flushDelay
 	d.FlushFunc = flushFunc
 	d.OnFlushComplete = onFlushComplete
-	d.Logger = lg
+	d.Logger = lg.Named("dump")
 	return d
 }
 

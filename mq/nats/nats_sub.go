@@ -71,7 +71,9 @@ func NewSubscription(lg *zap.SugaredLogger, brokerAddr, subject string, opts ...
 	return c, nil
 }
 
-func (ns *NatsSub) StartConsumption(ctx context.Context, handler func(data []byte) error) {
+type NatsSubHandler func(data []byte, reply string) error
+
+func (ns *NatsSub) StartConsumption(ctx context.Context, handler NatsSubHandler) {
 loop:
 	for {
 		select {
@@ -95,7 +97,7 @@ loop:
 				span = ns.Tracer.StartSpan(fmt.Sprintf("[%s:%d]", ns.subject, delivered))
 			}
 
-			if err := handler(m.Data); err != nil {
+			if err := handler(m.Data, m.Reply); err != nil {
 				ns.Logger.Infof("Unable to handle nats '%s' subscription message: %s", ns.subject, err)
 			}
 			if len(m.Reply) > 0 {
