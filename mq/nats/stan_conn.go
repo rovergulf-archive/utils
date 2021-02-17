@@ -24,7 +24,6 @@ func NewStanConn(c *Config) (*StanConn, error) {
 		logger: c.Logger.Named("nats-streaming"),
 		nuid:   nuid.New(),
 	}
-	s.logger = c.Logger.Named("stan")
 	s.clientId = fmt.Sprintf("%s-%d", c.ClientId, time.Now().Unix())
 
 	nc, err := NewConn(c)
