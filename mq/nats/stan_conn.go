@@ -13,14 +13,14 @@ import (
 type StanConn struct {
 	clientId string
 	client   stan.Conn
-	Tracer   opentracing.Tracer
+	tracer   opentracing.Tracer
 	logger   *zap.SugaredLogger
 	nuid     *nuid.NUID
 }
 
 func NewStanConn(c *Config) (*StanConn, error) {
 	s := &StanConn{
-		Tracer: c.Tracer,
+		tracer: c.Tracer,
 		logger: c.Logger.Named("nats-streaming"),
 		nuid:   nuid.New(),
 	}
@@ -67,11 +67,11 @@ func (sc *StanConn) Stop() {
 	}
 }
 
-func (sc *StanConn) DefaultAckHandler(gNuid string, err error) {
+func (sc *StanConn) DefaultAckHandler(nid string, err error) {
 	if err != nil {
-		sc.logger.Errorw("Error publishing message", "guid", gNuid, "err", err)
+		sc.logger.Errorw("Error publishing message", "guid", nid, "err", err)
 	} else {
-		sc.logger.Infow("Received ack for message", "nuid", gNuid, "guid", sc.nuid.Next())
+		sc.logger.Infow("Received ack for message", "nuid", nid)
 	}
 }
 
@@ -90,8 +90,7 @@ func (sc *StanConn) SendMessage(channel string, data interface{}) {
 		sc.logger.Errorw("Error publishing message",
 			"client_id", sc.clientId, "chan", channel, "err", err)
 	} else {
-		sc.logger.Infow("Published",
-			"chan", channel, "guid", sc.nuid.Next(), "async", false)
+		sc.logger.Infow("Sent message", "chan", channel, "guid", sc.nuid.Next(), "async", false)
 	}
 }
 
@@ -106,12 +105,13 @@ func (sc *StanConn) SendAsyncMessage(channel string, data interface{}) {
 		return
 	}
 
-	res, err := sc.client.PublishAsync(channel, payload, sc.DefaultAckHandler)
+	nid, err := sc.client.PublishAsync(channel, payload, sc.DefaultAckHandler)
 	if err != nil {
 		sc.logger.Errorw("Error publishing",
 			"chan", channel, "client_id", sc.clientId, "err", err)
 	} else {
+		sc.nuid.RandomizePrefix()
 		sc.logger.Infow("Published",
-			"chan", channel, "nuid", res, "guid", sc.nuid.Next(), "async", true)
+			"chan", channel, "nuid", nid, "guid", sc.nuid.Next(), "async", true)
 	}
 }

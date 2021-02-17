@@ -11,8 +11,8 @@ import (
 )
 
 type StanSub struct {
-	Tracer   opentracing.Tracer
-	Logger   *zap.SugaredLogger
+	tracer   opentracing.Tracer
+	logger   *zap.SugaredLogger
 	conn     *StanConn
 	sub      stan.Subscription
 	messages chan *stan.Msg
@@ -32,10 +32,8 @@ type MessageInfo struct {
 // creating subscription with a whole service lifetime context
 func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	ns := &StanSub{
-		Tracer:   c.Tracer,
-		Logger:   c.Logger.Named(c.Channel),
-		conn:     nil,
-		sub:      nil,
+		tracer:   c.Tracer,
+		logger:   c.Logger.Named(c.Channel),
 		messages: make(chan *stan.Msg),
 		errors:   make(chan error),
 		quit:     make(chan struct{}),
@@ -47,7 +45,7 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 
 	conn, err := NewStanConn(c.Config)
 	if err != nil {
-		ns.Logger.Errorw("Unable to setup nats connection",
+		ns.logger.Errorw("Unable to setup nats connection",
 			"client_id", c.ClientId, "broker", c.Broker, "err", err)
 		return nil, err
 	}
@@ -62,13 +60,13 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 		ns.messages <- msg
 	}, c.Opts...)
 	if err != nil {
-		ns.Logger.Errorw("Unable to subscribe",
+		ns.logger.Errorw("Unable to subscribe",
 			"client_id", c.ClientId, "chan", ns.channel, "err", err)
 		return nil, err
 	}
 	ns.sub = sub
 
-	ns.Logger.Infow("Nats-streaming subscription started",
+	ns.logger.Infow("Nats-streaming subscription started",
 		"client_id", c.ClientId, "chan", ns.channel)
 	return ns, nil
 }
@@ -80,14 +78,14 @@ loop:
 	for {
 		select {
 		case <-ctx.Done():
-			ns.Logger.Infow("Received shutdown signal, stopping subscription",
+			ns.logger.Infow("Received shutdown signal, stopping subscription",
 				"client_id", ns.conn.clientId, "chan", ns.channel)
 			ns.Stop()
 			break loop
 		case msg := <-ns.messages:
 			var span opentracing.Span
-			if ns.Tracer != nil {
-				span = ns.Tracer.StartSpan(ns.channel + "-event")
+			if ns.tracer != nil {
+				span = ns.tracer.StartSpan(ns.channel + "-event")
 				span.SetTag("sequence", msg.Sequence)
 				span.SetTag("channel", ns.channel)
 				ctx = opentracing.ContextWithSpan(ctx, span)
@@ -101,22 +99,24 @@ loop:
 			}
 
 			if err := handler(msg.Data, info); err != nil {
-				ns.Logger.Errorw("Unable to handle nats message: %s", "chan", ns.channel, "err", err)
+				ns.logger.Errorw("Unable to handle nats message: %s", "chan", ns.channel, "err", err)
 				ns.errors <- err
 			}
 
 			if err := msg.Ack(); err != nil {
-				ns.Logger.Infow("Unable to ack nats message",
+				ns.logger.Infow("Unable to ack nats message",
 					"chan", ns.channel, "seq", msg.Sequence, "err", err)
 			} else {
-				ns.Logger.Infow("Ack message", "chan", ns.channel, "seq", msg.Sequence, "g_nuid", info.Nuid)
+				ns.conn.nuid.RandomizePrefix()
+				ns.logger.Infow("Ack message",
+					"chan", ns.channel, "seq", msg.Sequence, "nuid", info.Nuid)
 			}
 
 			if span != nil {
 				span.Finish()
 			}
 		case e := <-ns.errors:
-			ns.Logger.Errorw("Subscription error", "chan", ns.channel, "err", e)
+			ns.logger.Errorw("Subscription error", "chan", ns.channel, "err", e)
 		}
 	}
 }
@@ -132,7 +132,7 @@ func (ns *StanSub) Errors() <-chan error {
 func (ns *StanSub) Stop() {
 	if ns.sub != nil {
 		if err := ns.sub.Unsubscribe(); err != nil {
-			ns.Logger.Errorw("Unable to unsubscribe",
+			ns.logger.Errorw("Unable to unsubscribe",
 				"chan", ns.channel, "err", err)
 		}
 	}
