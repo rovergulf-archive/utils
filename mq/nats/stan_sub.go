@@ -33,21 +33,16 @@ type MessageInfo struct {
 func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	ns := &StanSub{
 		Tracer:   c.Tracer,
-		Logger:   c.Logger,
+		Logger:   c.Logger.Named(c.Channel),
 		conn:     nil,
 		sub:      nil,
-		messages: nil,
-		errors:   nil,
-		quit:     nil,
-		channel:  "",
+		messages: make(chan *stan.Msg),
+		errors:   make(chan error),
+		quit:     make(chan struct{}),
+		channel:  c.Channel,
 	}
-	ns.Logger = c.Logger.Named(c.Channel)
-	ns.messages = make(chan *stan.Msg)
-	ns.errors = make(chan error)
-	ns.quit = make(chan struct{})
-	ns.channel = c.Channel
 
-	ch := strings.Split(c.Channel, ",")
+	ch := strings.Split(ns.channel, ",")
 	c.ClientId = fmt.Sprintf("%s-chan-%d", strings.Join(ch, "-"), time.Now().Unix())
 
 	conn, err := NewStanConn(c.Config)
