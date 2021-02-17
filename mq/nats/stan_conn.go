@@ -59,9 +59,10 @@ func NewStanConn(c *Config) (*StanConn, error) {
 
 func (sc *StanConn) Stop() {
 	if sc.client != nil {
-		sc.logger.Debugf("Closing '%s' connection", sc.clientId)
+		sc.logger.Debugw("Closing connection", "client_id", sc.clientId)
 		if err := sc.client.Close(); err != nil {
-			sc.logger.Errorf("Unable to stop nats streaming server connection: %s", err)
+			sc.logger.Errorw("Unable to stop nats-streaming server connection",
+				"client_id", sc.clientId, "err", err)
 		}
 	}
 }

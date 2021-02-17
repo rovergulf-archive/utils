@@ -106,7 +106,7 @@ loop:
 			}
 
 			if err := msg.Ack(); err != nil {
-				ns.Logger.Infow("Unable to respond nats message",
+				ns.Logger.Infow("Unable to ack nats message",
 					"chan", ns.channel, "seq", msg.Sequence, "err", err)
 			} else {
 				ns.Logger.Infow("Ack message", "chan", ns.channel, "seq", msg.Sequence, "g_nuid", info.Nuid)
@@ -116,7 +116,7 @@ loop:
 				span.Finish()
 			}
 		case e := <-ns.errors:
-			ns.Logger.Errorf("Subscription error: %s", e)
+			ns.Logger.Errorw("Subscription error", "chan", ns.channel, "err", e)
 		}
 	}
 }
@@ -132,7 +132,8 @@ func (ns *StanSub) Errors() <-chan error {
 func (ns *StanSub) Stop() {
 	if ns.sub != nil {
 		if err := ns.sub.Unsubscribe(); err != nil {
-			ns.Logger.Errorf("Unable to unsubscribe at %s: %s", ns.channel, err)
+			ns.Logger.Errorw("Unable to unsubscribe",
+				"chan", ns.channel, "err", err)
 		}
 	}
 
