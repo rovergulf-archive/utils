@@ -21,7 +21,7 @@ type StanConn struct {
 func NewStanConn(c *Config) (*StanConn, error) {
 	s := &StanConn{
 		Tracer: c.Tracer,
-		logger: c.Logger.Named("stan"),
+		logger: c.Logger.Named("nats-streaming"),
 		nuid:   nuid.New(),
 	}
 	s.logger = c.Logger.Named("stan")
