@@ -10,8 +10,8 @@ import (
 )
 
 type NatsSub struct {
-	Tracer opentracing.Tracer
-	Logger *zap.SugaredLogger
+	tracer opentracing.Tracer
+	logger *zap.SugaredLogger
 
 	messages chan *nats.Msg
 	errors   chan error
@@ -23,24 +23,10 @@ type NatsSub struct {
 	sub      *nats.Subscription
 }
 
-func NewSubscriptionWithTracing(c *NatsSubOpts, tracer opentracing.Tracer) (*NatsSub, error) {
-	if tracer == nil {
-		return nil, fmt.Errorf("'tracer opentracting.Tracer' provided as nil")
-	}
-
-	sub, err := NewSubscription(c)
-	if err != nil {
-		return nil, err
-	}
-	sub.Tracer = tracer
-
-	return sub, nil
-}
-
 func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
 	ns := &NatsSub{
-		Tracer:   c.Tracer,
-		Logger:   c.Logger.Named(c.Subject),
+		tracer:   c.Tracer,
+		logger:   c.Logger.Named(c.Subject),
 		messages: make(chan *nats.Msg),
 		errors:   make(chan error),
 		quit:     make(chan struct{}),
@@ -53,7 +39,7 @@ func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
 
 	enc, err := NewEncodedConn(c.Config)
 	if err != nil {
-		ns.Logger.Errorf("Unable to create NATS encoded connection: %s", err)
+		ns.logger.Errorf("Unable to create NATS encoded connection: %s", err)
 		return nil, err
 	}
 
@@ -63,13 +49,13 @@ func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
 		ns.messages <- msg
 	})
 	if err != nil {
-		ns.Logger.Errorf("Unable to start scheduler subject subscription: %s", err)
+		ns.logger.Errorf("Unable to start scheduler subject subscription: %s", err)
 		return nil, err
 	}
 
 	ns.sub = sub
 
-	ns.Logger.Infof("Initialized NATS subscription at '%s' subject", ns.subject)
+	ns.logger.Infof("Initialized NATS subscription at '%s' subject", ns.subject)
 	return ns, nil
 }
 
@@ -80,9 +66,9 @@ loop:
 	for {
 		select {
 		case <-ctx.Done():
-			ns.Logger.Info("Received shutdown signal, stopping subscription")
+			ns.logger.Info("Received shutdown signal, stopping subscription")
 			if err := ns.Stop(); err != nil { // ???
-				ns.Logger.Infof("Failed to unsubscribe at %s: %s", ns.subject, err)
+				ns.logger.Infof("Failed to unsubscribe at %s: %s", ns.subject, err)
 			}
 			if ns.conn != nil {
 				ns.conn.Close()
@@ -91,33 +77,33 @@ loop:
 		case m := <-ns.Messages():
 			var span opentracing.Span
 
-			if ns.Tracer != nil {
-				span = ns.Tracer.StartSpan(ns.subject + "-event")
+			if ns.tracer != nil {
+				span = ns.tracer.StartSpan(ns.subject + "-event")
 				span.SetTag("subject", ns.subject)
 				span.SetTag("m_reply", m.Reply)
 				ctx = opentracing.ContextWithSpan(ctx, span)
 			}
 
 			if err := handler(m.Data, m.Reply); err != nil {
-				ns.Logger.Infof("Unable to handle nats '%s' subscription message: %s", ns.subject, err)
+				ns.logger.Infof("Unable to handle nats '%s' subscription message: %s", ns.subject, err)
 			}
 			if len(m.Reply) > 0 {
 				if err := m.Respond([]byte(m.Reply)); err != nil {
-					ns.Logger.Infof("Unable to respond nats message: %s", err)
+					ns.logger.Infof("Unable to respond nats message: %s", err)
 				} else {
-					ns.Logger.Infof("Succesfully responed [%s: %s]", ns.subject, m.Reply)
+					ns.logger.Infof("Succesfully responed [%s: %s]", ns.subject, m.Reply)
 				}
 			}
 
 			// check if we have available handler
 			delivered, _ := ns.sub.Delivered()
-			ns.Logger.Infof("Successfully received '%s' message with increment: %d", ns.subject, delivered)
+			ns.logger.Infof("Successfully received '%s' message with increment: %d", ns.subject, delivered)
 
 			if span != nil {
 				span.Finish()
 			}
 		case e := <-ns.Errors():
-			ns.Logger.Infof("Subscription [%s] error: %s", ns.subject, e)
+			ns.logger.Infof("Subscription [%s] error: %s", ns.subject, e)
 		}
 	}
 }

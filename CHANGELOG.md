@@ -17,12 +17,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## Released [v0.11.0]
+
+## 16 Feb 2021
+
+### Fixed
+- `natsmq` nuid lock
+- `natsmq` lowercase struct internals
+
+
 ## Released [v0.10.8]
 
 ## 16 Feb 2021
 
-### Change
+### Changed
 - `natsmq` log beautify
+
 
 ## Released [v0.10.0]
 
@@ -188,7 +198,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v0.10.8...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v0.11.0...main
+[v0.11.0]: https://github.com/rovergulf/utils/compare/v0.10.8...v0.11.0
 [v0.10.8]: https://github.com/rovergulf/utils/compare/v0.10.0...v0.10.8
 [v0.10.0]: https://github.com/rovergulf/utils/compare/v0.9.1...v0.10.0
 [v0.9.1]: https://github.com/rovergulf/utils/compare/v0.8.3...v0.9.1
