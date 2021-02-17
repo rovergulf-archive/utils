@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v0.10.0
+## [Unreleased] v0.13.0
 
-## 17 Feb 2021
+## 18 Feb 2021
 
 ### Added
 
@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+
+## Released [v1.0.0]
+
+## 16 Feb 2021
+
+### Added
+- `colors` – random color generating package
 
 
 ## Released [v0.11.0]
@@ -198,7 +206,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v0.11.0...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.0.0...main
+[v1.0.0]: https://github.com/rovergulf/utils/compare/v1.0.0...v1.0.0
 [v0.11.0]: https://github.com/rovergulf/utils/compare/v0.10.8...v0.11.0
 [v0.10.8]: https://github.com/rovergulf/utils/compare/v0.10.0...v0.10.8
 [v0.10.0]: https://github.com/rovergulf/utils/compare/v0.9.1...v0.10.0
