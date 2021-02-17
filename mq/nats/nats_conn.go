@@ -40,7 +40,6 @@ func NewConn(c *Config) (*nats.Conn, error) {
 }
 
 func NewEncodedConn(c *Config) (*nats.EncodedConn, error) {
-
 	nc, err := NewConn(c)
 	if err != nil {
 		return nil, err
@@ -50,7 +49,7 @@ func NewEncodedConn(c *Config) (*nats.EncodedConn, error) {
 	if err != nil {
 		return nil, err
 	} else {
-		c.Logger.Infof("Successfully created nats.EncodedConn with '%s'", c.Broker)
+		c.Logger.Infow("Successfully created nats.EncodedConn", "broker", c.Broker)
 	}
 
 	return encoded, nil

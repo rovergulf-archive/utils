@@ -3,7 +3,6 @@ package natsmq
 import (
 	"context"
 	"fmt"
-	"github.com/nats-io/nuid"
 	"github.com/nats-io/stan.go"
 	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
@@ -15,7 +14,7 @@ type StanSub struct {
 	Tracer   opentracing.Tracer
 	Logger   *zap.SugaredLogger
 	conn     *StanConn
-	Sub      stan.Subscription
+	sub      stan.Subscription
 	messages chan *stan.Msg
 	errors   chan error
 	quit     chan struct{}
@@ -29,22 +28,20 @@ type MessageInfo struct {
 	Timestamp int64  `json:"timestamp" yaml:"timestamp"`
 }
 
-func NewChanSubWithTracer(c *StanSubOpts, t opentracing.Tracer) (*StanSub, error) {
-	ns, err := NewChanSub(c)
-	if err != nil {
-		return nil, err
-	}
-
-	ns.Tracer = t
-	ns.conn.Tracer = t
-	return ns, nil
-}
-
 // NewChanSub creates connection with channel-named clientID
 // creating subscription with a whole service lifetime context
 func NewChanSub(c *StanSubOpts) (*StanSub, error) {
-	ns := new(StanSub)
-	ns.Logger = c.Logger.Named("stan.sub-" + c.Channel)
+	ns := &StanSub{
+		Tracer:   c.Tracer,
+		Logger:   c.Logger,
+		conn:     nil,
+		sub:      nil,
+		messages: nil,
+		errors:   nil,
+		quit:     nil,
+		channel:  "",
+	}
+	ns.Logger = c.Logger.Named(c.Channel)
 	ns.messages = make(chan *stan.Msg)
 	ns.errors = make(chan error)
 	ns.quit = make(chan struct{})
@@ -70,10 +67,11 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 		ns.messages <- msg
 	}, c.Opts...)
 	if err != nil {
-		ns.Logger.Errorf("Unable to subscribe [%s: %s]: %s", c.ClientId, ns.channel, err)
+		ns.Logger.Errorw("Unable to subscribe",
+			"client_id", c.ClientId, "chan", ns.channel, "err", err)
 		return nil, err
 	}
-	ns.Sub = sub
+	ns.sub = sub
 
 	ns.Logger.Infof("[%s] NATS subscription started for '%s' awating for messages", c.ClientId, ns.channel)
 	return ns, nil
@@ -86,37 +84,35 @@ loop:
 	for {
 		select {
 		case <-ctx.Done():
-			ns.Logger.Infof("[%s] Received shutdown signal, stopping '%s' subscription", ns.conn.clientId, ns.channel)
+			ns.Logger.Infow("Received shutdown signal, stopping subscription",
+				"client_id", ns.conn.clientId, "chan", ns.channel)
 			ns.Stop()
 			break loop
 		case msg := <-ns.messages:
 			var span opentracing.Span
 			if ns.Tracer != nil {
-				span = ns.Tracer.StartSpan(ns.channel)
+				span = ns.Tracer.StartSpan(ns.channel + "-event")
 				span.SetTag("sequence", msg.Sequence)
-				span.SetTag("sequence", msg.Sequence)
+				span.SetTag("channel", ns.channel)
 				ctx = opentracing.ContextWithSpan(ctx, span)
 			}
 
 			info := &MessageInfo{
-				Nuid:      nuid.Next(),
+				Nuid:      ns.conn.nuid.Next(),
 				Sequence:  msg.Sequence,
 				Timestamp: msg.Timestamp,
 				Channel:   ns.channel,
 			}
 
 			if err := handler(msg.Data, info); err != nil {
-				ns.Logger.Errorf("Unable to handle nats '%s' subscription message: %s", ns.channel, err)
+				ns.Logger.Errorw("Unable to handle nats message: %s", "chan", ns.channel, "err", err)
 				ns.errors <- err
-			} else {
-				ns.Logger.Infof("[%s] Successfully received sequenced message: %d at %d", ns.channel, msg.Sequence, msg.Timestamp)
 			}
 
 			if err := msg.Ack(); err != nil {
 				ns.Logger.Infof("Unable to respond nats message: %s", err)
 			} else {
-				ns.Logger.Infow("Successfully acked",
-					"channel", ns.channel, "sequence", msg.Sequence, "nuid", info.Nuid)
+				ns.Logger.Infow("Ack message", "chan", ns.channel, "seq", msg.Sequence, "g_nuid", info.Nuid)
 			}
 
 			if span != nil {
@@ -137,17 +133,13 @@ func (ns *StanSub) Errors() <-chan error {
 }
 
 func (ns *StanSub) Stop() {
-
-	if ns.Sub != nil {
-		if err := ns.Sub.Unsubscribe(); err != nil {
-			ns.Logger.Infof("Unable to unsubscribe at %s: %s", ns.channel, err)
+	if ns.sub != nil {
+		if err := ns.sub.Unsubscribe(); err != nil {
+			ns.Logger.Errorf("Unable to unsubscribe at %s: %s", ns.channel, err)
 		}
 	}
 
-	if ns.conn.client != nil {
-		ns.Logger.Infof("Closing connection: [%s: %s]", ns.conn.clientId, ns.channel)
-		if err := ns.conn.client.Close(); err != nil {
-			ns.Logger.Errorf("Unable to close nats streaming server connection at %s: %s", ns.channel, err)
-		}
+	if ns.conn != nil {
+		ns.conn.Stop()
 	}
 }

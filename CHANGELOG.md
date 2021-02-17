@@ -17,7 +17,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
-## Released [v0.9.0]
+## Released [v0.10.0]
+
+## 16 Feb 2021
+
+### Added
+- `natsmq` enhanced zap logging
+- `natsmq` client dynamic nuid for ack's
+
+### Changed
+- go mod tidy
+- update dependencies
+- `natsmq.Config` includes `opentracing.Tracer` now to reduce call arguments and duplicate functions
+
+### Removed
+- `natsmq` removed unnecessary loges
+
+
+## Released [v0.9.1]
 
 ## 16 Feb 2021
 
@@ -165,7 +182,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/rovergulf/utils/compare/v0.0.0...main
-[v0.9.0]: https://github.com/rovergulf/utils/compare/v0.8.3...v0.9.0
+[v0.10.0]: https://github.com/rovergulf/utils/compare/v0.9.1...v0.10.0
+[v0.9.1]: https://github.com/rovergulf/utils/compare/v0.8.3...v0.9.1
 [v0.8.3]: https://github.com/rovergulf/utils/compare/v0.8.2...v0.8.3
 [v0.8.2]: https://github.com/rovergulf/utils/compare/v0.8.0...v0.8.2
 [v0.8.0]: https://github.com/rovergulf/utils/compare/v0.7.0...v0.8.0
