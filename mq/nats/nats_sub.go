@@ -38,14 +38,16 @@ func NewSubscriptionWithTracing(c *NatsSubOpts, tracer opentracing.Tracer) (*Nat
 }
 
 func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
-	ns := new(NatsSub)
-
-	ns.name = fmt.Sprintf("chan-%s-%d", c.Subject, time.Now().Unix())
-	ns.Logger = c.Logger.Named("nats.sub-" + c.Subject)
-	ns.messages = make(chan *nats.Msg)
-	ns.errors = make(chan error)
-	ns.quit = make(chan struct{})
-	ns.subject = c.Subject
+	ns := &NatsSub{
+		Tracer:   c.Tracer,
+		Logger:   c.Logger.Named(c.Subject),
+		messages: make(chan *nats.Msg),
+		errors:   make(chan error),
+		quit:     make(chan struct{}),
+		subject:  c.Subject,
+		name:     fmt.Sprintf("chan-%s-%d", c.Subject, time.Now().Unix()),
+		response: c.Subject + "-sub",
+	}
 
 	c.NatsConn = append(c.NatsConn, nats.Name(ns.name))
 
