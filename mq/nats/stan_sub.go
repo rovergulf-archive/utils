@@ -69,7 +69,7 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	ns.sub = sub
 
 	ns.Logger.Infow("Nats-streaming subscription started",
-		"client_id", c.ClientId, "channel", ns.channel)
+		"client_id", c.ClientId, "chan", ns.channel)
 	return ns, nil
 }
 
