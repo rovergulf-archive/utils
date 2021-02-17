@@ -6,24 +6,27 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/nats-io/stan.go"
+	"github.com/opentracing/opentracing-go"
 	"go.uber.org/zap"
 	"io/ioutil"
 )
 
 // Config represent stan.Conn and nats.Conn connection parameters
 type Config struct {
-	ClientId  string             `json:"client_id" yaml:"client_id"`
-	ClusterId string             `json:"clusterId" yaml:"cluster_id"`
-	BrokerId  string             `json:"brokerId" yaml:"broker_id"`
-	Broker    string             `json:"brokers" yaml:"broker"`
-	User      string             `json:"user" yaml:"user"`
-	Password  string             `json:"password" yaml:"password"`
-	Token     string             `json:"token" yaml:"token"`
-	Channels  map[string]string  `json:"channels" yaml:"channels"`
-	TLS       SSL                `json:"tls" yaml:"tls"`
-	NatsConn  []nats.Option      `json:"-" yaml:"-"`
-	StanConn  []stan.Option      `json:"-" yaml:"-"`
-	Logger    *zap.SugaredLogger `json:"-" yaml:"-"`
+	ClientId   string             `json:"client_id" yaml:"client_id"`
+	ClusterId  string             `json:"clusterId" yaml:"cluster_id"`
+	BrokerId   string             `json:"brokerId" yaml:"broker_id"`
+	Broker     string             `json:"brokers" yaml:"broker"`
+	User       string             `json:"user" yaml:"user"`
+	Password   string             `json:"password" yaml:"password"`
+	Token      string             `json:"token" yaml:"token"`
+	Channels   map[string]string  `json:"channels" yaml:"channels"`
+	AckTimeout int64              `json:"ack_timeout" yaml:"ack_timeout"`
+	TLS        SSL                `json:"tls" yaml:"tls"`
+	NatsConn   []nats.Option      `json:"-" yaml:"-"`
+	StanConn   []stan.Option      `json:"-" yaml:"-"`
+	Logger     *zap.SugaredLogger `json:"-" yaml:"-"`
+	Tracer     opentracing.Tracer `json:"-" yaml:"-"`
 }
 
 func (c *Config) GetNatsUserInfo() nats.Option {
@@ -44,12 +47,12 @@ type StanSubOpts struct {
 
 // SSL contains tls connection options
 type SSL struct {
-	Enabled  bool               `json:"enabled" yaml:"enabled"`
-	CaPath   string             `json:"ca" yaml:"ca"`
-	KeyPath  string             `json:"key" yaml:"key"`
-	CertPath string             `json:"cert" yaml:"cert"`
-	Verify   bool               `json:"verify" yaml:"verify"`
-	AuthType tls.ClientAuthType `json:"auth_type" yaml:"auth_type"`
+	Enabled  bool   `json:"enabled" yaml:"enabled"`
+	CaPath   string `json:"ca" yaml:"ca"`
+	KeyPath  string `json:"key" yaml:"key"`
+	CertPath string `json:"cert" yaml:"cert"`
+	Verify   bool   `json:"verify" yaml:"verify"`
+	AuthType string `json:"auth_type" yaml:"auth_type"`
 }
 
 func (s *SSL) Load() (*tls.Config, error) {

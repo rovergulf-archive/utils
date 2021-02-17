@@ -20,7 +20,7 @@ type NatsSub struct {
 	name     string
 	response string
 	conn     *nats.EncodedConn
-	Sub      *nats.Subscription
+	sub      *nats.Subscription
 }
 
 func NewSubscriptionWithTracing(c *NatsSubOpts, tracer opentracing.Tracer) (*NatsSub, error) {
@@ -65,7 +65,7 @@ func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
 		return nil, err
 	}
 
-	ns.Sub = sub
+	ns.sub = sub
 
 	ns.Logger.Infof("Initialized NATS subscription at '%s' subject", ns.subject)
 	return ns, nil
@@ -89,12 +89,8 @@ loop:
 		case m := <-ns.Messages():
 			var span opentracing.Span
 
-			// check if we have available handler
-			delivered, _ := ns.Sub.Delivered()
-			ns.Logger.Infof("Successfully received '%s' message with increment: %d", ns.subject, delivered)
-
 			if ns.Tracer != nil {
-				span = ns.Tracer.StartSpan(fmt.Sprintf("[%s:%d]", ns.subject, delivered))
+				span = ns.Tracer.StartSpan(ns.subject + "-event")
 				span.SetTag("subject", ns.subject)
 				span.SetTag("m_reply", m.Reply)
 				ctx = opentracing.ContextWithSpan(ctx, span)
@@ -110,6 +106,10 @@ loop:
 					ns.Logger.Infof("Succesfully responed [%s: %s]", ns.subject, m.Reply)
 				}
 			}
+
+			// check if we have available handler
+			delivered, _ := ns.sub.Delivered()
+			ns.Logger.Infof("Successfully received '%s' message with increment: %d", ns.subject, delivered)
 
 			if span != nil {
 				span.Finish()
@@ -130,8 +130,7 @@ func (ns *NatsSub) Errors() <-chan error {
 
 func (ns *NatsSub) Stop() error {
 	if ns.conn != nil {
-		ns.conn.Drain()
 		ns.conn.Close()
 	}
-	return ns.Sub.Unsubscribe()
+	return ns.sub.Unsubscribe()
 }
