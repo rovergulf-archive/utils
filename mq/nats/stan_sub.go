@@ -47,7 +47,8 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 
 	conn, err := NewStanConn(c.Config)
 	if err != nil {
-		ns.Logger.Errorf("Unable to connect [%s:%s]: %s", c.ClientId, c.Broker, err)
+		ns.Logger.Errorw("Unable to setup nats connection",
+			"client_id", c.ClientId, "broker", c.Broker, "err", err)
 		return nil, err
 	}
 	ns.conn = conn
@@ -56,7 +57,6 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	// only ack manually
 	c.Opts = append(c.Opts, stan.SetManualAckMode())
 	c.Opts = append(c.Opts, stan.AckWait(60*time.Second))
-	//c.Opts = append(c.Opts, stan.StartWithLastReceived())
 
 	sub, err := ns.conn.client.Subscribe(ns.channel, func(msg *stan.Msg) {
 		ns.messages <- msg
@@ -68,7 +68,8 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	}
 	ns.sub = sub
 
-	ns.Logger.Infof("[%s] NATS subscription started for '%s' awating for messages", c.ClientId, ns.channel)
+	ns.Logger.Infow("Nats-streaming subscription started",
+		"client_id", c.ClientId, "channel", ns.channel)
 	return ns, nil
 }
 
