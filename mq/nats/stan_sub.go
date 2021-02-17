@@ -110,7 +110,8 @@ loop:
 			}
 
 			if err := msg.Ack(); err != nil {
-				ns.Logger.Infof("Unable to respond nats message: %s", err)
+				ns.Logger.Infow("Unable to respond nats message",
+					"chan", ns.channel, "seq", msg.Sequence, "err", err)
 			} else {
 				ns.Logger.Infow("Ack message", "chan", ns.channel, "seq", msg.Sequence, "g_nuid", info.Nuid)
 			}
