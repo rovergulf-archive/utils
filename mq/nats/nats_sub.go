@@ -59,7 +59,7 @@ func NewSubscription(c *NatsSubOpts) (*NatsSub, error) {
 	return ns, nil
 }
 
-type NatsSubHandler func(data []byte, reply string) error
+type NatsSubHandler func(ctx context.Context, data []byte, reply string) error
 
 func (ns *NatsSub) StartConsumption(ctx context.Context, handler NatsSubHandler) {
 loop:
@@ -84,7 +84,7 @@ loop:
 				ctx = opentracing.ContextWithSpan(ctx, span)
 			}
 
-			if err := handler(m.Data, m.Reply); err != nil {
+			if err := handler(ctx, m.Data, m.Reply); err != nil {
 				ns.logger.Infof("Unable to handle nats '%s' subscription message: %s", ns.subject, err)
 			}
 			if len(m.Reply) > 0 {
