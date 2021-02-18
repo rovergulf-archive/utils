@@ -71,7 +71,7 @@ func NewChanSub(c *StanSubOpts) (*StanSub, error) {
 	return ns, nil
 }
 
-type StanSubHandler func(data []byte, info *MessageInfo) error
+type StanSubHandler func(ctx context.Context, data []byte, info *MessageInfo) error
 
 func (ns *StanSub) StartConsumption(ctx context.Context, handler StanSubHandler) {
 loop:
@@ -98,7 +98,7 @@ loop:
 				Channel:   ns.channel,
 			}
 
-			if err := handler(msg.Data, info); err != nil {
+			if err := handler(ctx, msg.Data, info); err != nil {
 				ns.logger.Errorw("Unable to handle nats message: %s", "chan", ns.channel, "err", err)
 				ns.errors <- err
 			}

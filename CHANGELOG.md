@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v0.13.0
+## [Unreleased] v2.0.0
 
-## 18 Feb 2021
+## 19 Feb 2021
 
 ### Added
 
@@ -17,9 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## Released [v1.1.0]
+
+## 18 Feb 2021
+
+### Added
+- `natsmq` – Message handler `context.Context` argument
+
+
 ## Released [v1.0.0]
 
-## 16 Feb 2021
+## 17 Feb 2021
 
 ### Added
 - `colors` – random color generating package
@@ -27,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released [v0.11.0]
 
-## 16 Feb 2021
+## 17 Feb 2021
 
 ### Fixed
 - `natsmq` nuid lock
@@ -36,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released [v0.10.8]
 
-## 16 Feb 2021
+## 17 Feb 2021
 
 ### Changed
 - `natsmq` log beautify
@@ -44,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released [v0.10.0]
 
-## 16 Feb 2021
+## 17 Feb 2021
 
 ### Added
 - `natsmq` enhanced zap logging
