@@ -17,6 +17,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
+## Released [v1.2.0]
+
+## 18 Feb 2021
+
+### Added
+- `natsmq` – Message handlers moved to separate Nats/StreamingSub functions
+
+
 ## Released [v1.1.0]
 
 ## 18 Feb 2021

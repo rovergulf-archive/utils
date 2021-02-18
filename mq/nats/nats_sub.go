@@ -78,7 +78,7 @@ loop:
 			var span opentracing.Span
 
 			if ns.tracer != nil {
-				span = ns.tracer.StartSpan(ns.subject + "-event")
+				span = ns.tracer.StartSpan(ns.subject)
 				span.SetTag("subject", ns.subject)
 				span.SetTag("m_reply", m.Reply)
 				ctx = opentracing.ContextWithSpan(ctx, span)
@@ -121,4 +121,30 @@ func (ns *NatsSub) Stop() error {
 		ns.conn.Close()
 	}
 	return ns.sub.Unsubscribe()
+}
+
+func (ns *NatsSub) handleNatsMessage(ctx context.Context, msg *nats.Msg, handler NatsSubHandler) error {
+	if ns.tracer != nil {
+		span := ns.tracer.StartSpan(ns.subject)
+		ctx = opentracing.ContextWithSpan(ctx, span)
+		defer span.Finish()
+	}
+
+	if err := handler(ctx, msg.Data, msg.Reply); err != nil {
+		ns.logger.Infof("Unable to handle nats '%s' subscription message: %s", ns.subject, err)
+	}
+
+	if len(msg.Reply) > 0 {
+		if err := msg.Respond([]byte(msg.Reply)); err != nil {
+			ns.logger.Infof("Unable to respond nats message: %s", err)
+		} else {
+			ns.logger.Infof("Succesfully responed [%s: %s]", ns.subject, msg.Reply)
+		}
+	}
+
+	// check if we have available handler
+	delivered, _ := ns.sub.Delivered()
+	ns.logger.Infof("Successfully received '%s' message with increment: %d", ns.subject, delivered)
+
+	return nil
 }
