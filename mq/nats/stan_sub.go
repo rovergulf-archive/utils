@@ -83,37 +83,8 @@ loop:
 			ns.Stop()
 			break loop
 		case msg := <-ns.messages:
-			var span opentracing.Span
-			if ns.tracer != nil {
-				span = ns.tracer.StartSpan(ns.channel + "-event")
-				span.SetTag("sequence", msg.Sequence)
-				span.SetTag("channel", ns.channel)
-				ctx = opentracing.ContextWithSpan(ctx, span)
-			}
-
-			info := &MessageInfo{
-				Nuid:      ns.conn.nuid.Next(),
-				Sequence:  msg.Sequence,
-				Timestamp: msg.Timestamp,
-				Channel:   ns.channel,
-			}
-
-			if err := handler(ctx, msg.Data, info); err != nil {
-				ns.logger.Errorw("Unable to handle nats message: %s", "chan", ns.channel, "err", err)
+			if err := ns.handleStreamingMessage(ctx, msg, handler); err != nil {
 				ns.errors <- err
-			}
-
-			if err := msg.Ack(); err != nil {
-				ns.logger.Infow("Unable to ack nats message",
-					"chan", ns.channel, "seq", msg.Sequence, "err", err)
-			} else {
-				ns.conn.nuid.RandomizePrefix()
-				ns.logger.Infow("Ack message",
-					"chan", ns.channel, "seq", msg.Sequence, "nuid", info.Nuid)
-			}
-
-			if span != nil {
-				span.Finish()
 			}
 		case e := <-ns.errors:
 			ns.logger.Errorw("Subscription error", "chan", ns.channel, "err", e)
@@ -140,4 +111,35 @@ func (ns *StanSub) Stop() {
 	if ns.conn != nil {
 		ns.conn.Stop()
 	}
+}
+
+func (ns *StanSub) handleStreamingMessage(ctx context.Context, msg *stan.Msg, handler StanSubHandler) error {
+	if ns.tracer != nil {
+		span := ns.tracer.StartSpan(ns.channel)
+		ctx = opentracing.ContextWithSpan(ctx, span)
+		defer span.Finish()
+	}
+
+	info := &MessageInfo{
+		Nuid:      ns.conn.nuid.Next(),
+		Sequence:  msg.Sequence,
+		Timestamp: msg.Timestamp,
+		Channel:   ns.channel,
+	}
+
+	if err := handler(ctx, msg.Data, info); err != nil {
+		ns.logger.Errorw("Unable to handle nats message: %s", "chan", ns.channel, "err", err)
+		return err
+	}
+
+	if err := msg.Ack(); err != nil {
+		ns.logger.Infow("Unable to ack nats message",
+			"chan", ns.channel, "seq", msg.Sequence, "err", err)
+	} else {
+		ns.conn.nuid.RandomizePrefix()
+		ns.logger.Infow("Ack message",
+			"chan", ns.channel, "seq", msg.Sequence, "nuid", info.Nuid)
+	}
+
+	return nil
 }
