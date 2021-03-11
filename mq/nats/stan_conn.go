@@ -20,11 +20,11 @@ type StanConn struct {
 
 func NewStanConn(c *Config) (*StanConn, error) {
 	s := &StanConn{
-		tracer: c.Tracer,
-		logger: c.Logger.Named("nats-streaming"),
-		nuid:   nuid.New(),
+		tracer:   c.Tracer,
+		logger:   c.Logger.Named("nats-streaming"),
+		nuid:     nuid.New(),
+		clientId: fmt.Sprintf("%s-%d", c.ClientId, time.Now().Unix()),
 	}
-	s.clientId = fmt.Sprintf("%s-%d", c.ClientId, time.Now().Unix())
 
 	nc, err := NewConn(c)
 	if err != nil {
