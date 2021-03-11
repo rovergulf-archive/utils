@@ -6,13 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v2.0.0
 
-## 24 Feb 2021
+## 11 Mar 2021
 
 ### Added
+- `httplib.Interceptor` struct
 
 ### Changed
 
 ### Fixed
+- `natsmq` client id declaration
 
 ### Removed
 

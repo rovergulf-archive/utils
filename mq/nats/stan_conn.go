@@ -44,10 +44,10 @@ func NewStanConn(c *Config) (*StanConn, error) {
 		c.StanConn = append(c.StanConn, stan.PubAckWait(stan.DefaultAckWait)) // 30 * time.Second
 	}
 
-	sc, err := stan.Connect(c.ClusterId, c.ClientId, c.StanConn...)
+	sc, err := stan.Connect(c.ClusterId, s.clientId, c.StanConn...)
 	if err != nil {
 		s.logger.Errorw("Failed to set stan connection",
-			"client_id", c.ClientId, "cluster_id", c.ClusterId, "err", err)
+			"client_id", s.clientId, "cluster_id", c.ClusterId, "err", err)
 		return nil, err
 	}
 	s.client = sc
