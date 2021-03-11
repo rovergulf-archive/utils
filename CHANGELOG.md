@@ -6,19 +6,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v2.0.0
 
+## 12 Mar 2021
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+
+## Released [v1.3.1]
+
 ## 11 Mar 2021
 
 ### Added
 - `httplib.Interceptor` struct
 
-### Changed
-
 ### Fixed
 - `natsmq` client id declaration
 
-### Removed
 
-## Released [v2.0.0]
+## Released [v1.3.0]
 
 ## 23 Feb 2021
 
@@ -237,8 +247,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v2.0.0...main
-[v2.0.0]: https://github.com/rovergulf/utils/compare/v1.2.0...v2.0.0
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.3.1...main
+[v1.3.1]: https://github.com/rovergulf/utils/compare/v1.3.0...v1.3.1
+[v1.3.0]: https://github.com/rovergulf/utils/compare/v1.2.0...v1.3.0
 [v1.2.0]: https://github.com/rovergulf/utils/compare/v1.1.0...v1.2.0
 [v1.1.0]: https://github.com/rovergulf/utils/compare/v1.0.0...v1.1.0
 [v1.0.0]: https://github.com/rovergulf/utils/compare/v1.0.0...v1.0.0
