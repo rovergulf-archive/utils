@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v2.0.0
+## [Unreleased] v1.4.0
 
-## 12 Mar 2021
+## 20 Mar 2021
 
 ### Added
 
@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+
+## Released [v1.3.2]
+
+## 19 Mar 2021
+
+### Changed
+- `tracing` package connection log level set to debug
 
 ## Released [v1.3.1]
 
@@ -247,7 +254,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.3.1...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.3.2...main
+[v1.3.2]: https://github.com/rovergulf/utils/compare/v1.3.1...v1.3.2
 [v1.3.1]: https://github.com/rovergulf/utils/compare/v1.3.0...v1.3.1
 [v1.3.0]: https://github.com/rovergulf/utils/compare/v1.2.0...v1.3.0
 [v1.2.0]: https://github.com/rovergulf/utils/compare/v1.1.0...v1.2.0

@@ -51,7 +51,7 @@ func NewJaeger(ctx context.Context, logger *zap.SugaredLogger, serviceName, addr
 	j.Tracer = tracer
 	j.Closer = closer
 
-	j.logger.Info("Jaeger tracing client initialized")
+	j.logger.Debugw("Jaeger tracing client initialized", "collector_url", address)
 	return j, nil
 }
 
