@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v1.4.0
+## [Unreleased] v1.5.0
 
-## 20 Mar 2021
+## 31 Mar 2021
 
 ### Added
 
@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+
+## Released [v1.4.0]
+
+## 30 Mar 2021
+
+### Added
+- ❕`pgxs` package now have `Migrate` method which represents [jackc/tern](https://github.com/jackc/tern) library
+
+### Changed
+- ❗BREAKING: pgxs package config now uses `pgx.Config.MigrationsPath` for migrations
+- pgxs - separate package logics by files, renamed functions for `pgxpool.Pool` and some preparations to handle `pgx.Conn`
+
+### Fixed
+
+### Removed
+- `pgxs.Config.ActualSchema` parameter
 
 
 ## Released [v1.3.2]
@@ -254,7 +271,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.3.2...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.4.0...main
+[v1.4.0]: https://github.com/rovergulf/utils/compare/v1.3.2...v1.4.0
 [v1.3.2]: https://github.com/rovergulf/utils/compare/v1.3.1...v1.3.2
 [v1.3.1]: https://github.com/rovergulf/utils/compare/v1.3.0...v1.3.1
 [v1.3.0]: https://github.com/rovergulf/utils/compare/v1.2.0...v1.3.0
