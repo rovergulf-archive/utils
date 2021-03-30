@@ -1,4 +1,4 @@
-name: Golang 1.16
+name: Golang CI
 
 on:
   push:
@@ -10,14 +10,6 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_PASSWORD: ''
-          POSTGRES_USER: 'postgres'
     steps:
       - uses: actions/checkout@v2
 
