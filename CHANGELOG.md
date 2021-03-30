@@ -23,10 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - ❕`pgxs` package now have `Migrate` method which represents [jackc/tern](https://github.com/jackc/tern) library
+- Github Workflow configuration
 
 ### Changed
 - ❗BREAKING: pgxs package config now uses `pgx.Config.MigrationsPath` for migrations
 - pgxs - separate package logics by files, renamed functions for `pgxpool.Pool` and some preparations to handle `pgx.Conn`
+- go.mod now uses Golang 1.16
 
 ### Fixed
 

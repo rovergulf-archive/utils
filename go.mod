@@ -1,6 +1,6 @@
 module github.com/rovergulf/utils
 
-go 1.15
+go 1.16
 
 replace github.com/rovergulf/utils => github.com/rovergulf/utils v0.2.1
 
