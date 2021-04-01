@@ -3,6 +3,7 @@ package httplib
 import (
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
+	"github.com/rovergulf/utils/ipaddr"
 	"github.com/rovergulf/utils/tracing"
 	"go.uber.org/zap"
 	"net/http"
@@ -14,6 +15,33 @@ type Interceptor struct {
 	Router *mux.Router
 	Tracer opentracing.Tracer
 	Logger *zap.SugaredLogger
+}
+
+const (
+	headersSep = ", "
+)
+
+var allowedHeaders = []string{
+	ipaddr.XForwardedFor,
+	ipaddr.CFConnectingIp,
+	ipaddr.CFRealIp,
+	"Accept",
+	"Content-Type",
+	"Content-Length",
+	"Cookie",
+	"Accept-Encoding",
+	"Authorization",
+	"X-CSRF-Token",
+	"X-Requested-With",
+}
+
+var allowedMethods = []string{
+	"OPTIONS",
+	"GET",
+	"PUT",
+	"PATCH",
+	"POST",
+	"DELETE",
 }
 
 func NewInterceptor(lg *zap.SugaredLogger, j *tracing.Jaeger) Interceptor {
@@ -36,9 +64,8 @@ func (i *Interceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if origin := r.Header.Get("Origin"); origin != "" {
 		w.Header().Set("Access-Control-Allow-Credentials", "true")
 		w.Header().Set("Access-Control-Allow-Origin", r.Header.Get("Origin"))
-		w.Header().Set("Access-Control-Allow-Methods", "POST, PATCH, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers",
-			"Accept, Content-Type, Content-Length, Cookie, Accept-Encoding, X-CSRF-Token, Authorization, X-Requested-With")
+		w.Header().Set("Access-Control-Allow-Methods", strings.Join(allowedMethods, headersSep))
+		w.Header().Set("Access-Control-Allow-Headers", strings.Join(allowedHeaders, headersSep))
 	}
 
 	// handle preflight request
@@ -53,6 +80,7 @@ func (i *Interceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		span.SetTag("method", r.Method)
 		span.SetTag("path", r.URL.Path)
 		span.SetTag("query", r.URL.RawQuery)
+		span.SetTag("ip_addr", ipaddr.GetRequestIPAddress(r))
 		defer span.Finish()
 		ctx = opentracing.ContextWithSpan(ctx, span)
 	}
