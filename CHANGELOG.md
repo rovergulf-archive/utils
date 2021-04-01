@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - validation.go shortlinkRegex, fullShortlinkRegex and resourceName regex
+- **zapx** package as [uber-go/zap](https://github.com/uber-go/zap) wrapper
 
 ### Changed
 
