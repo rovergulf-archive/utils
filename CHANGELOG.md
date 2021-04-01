@@ -4,11 +4,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v1.5.0
+## [Unreleased] v1.6.0
 
-## 31 Mar 2021
+## 2 Apr 2021
 
 ### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+
+## [Unreleased] v1.5.0
+
+## 1 Apr 2021
+
+### Added
+- ./github package `ghx` with Github API & OAuth2 client simple wrapper
 
 ### Changed
 
