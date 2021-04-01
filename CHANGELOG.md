@@ -6,9 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v1.6.0
 
-## 2 Apr 2021
+## 1 Apr 2021
 
 ### Added
+- validation.go shortlinkRegex, fullShortlinkRegex and resourceName regex
 
 ### Changed
 

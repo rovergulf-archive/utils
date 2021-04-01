@@ -6,9 +6,11 @@ import (
 )
 
 var (
-	emailRegex    = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]$`)
-	phoneRegex    = regexp.MustCompile(`^\+\d{11,15}$`)
-	userLinkRegex = regexp.MustCompile(`^[a-zA-Z0-9]{5,128}$`)
+	emailRegex         = regexp.MustCompile(`^[a-z0-9._%+\-]+@[a-z0-9.\-]$`)
+	phoneRegex         = regexp.MustCompile(`^\+\d{11,15}$`)
+	fullShortlinkRegex = regexp.MustCompile(`([a-zA-Z0-9]+[_-]?){1,256}$`)
+	shortlinkRegex     = regexp.MustCompile(`([a-zA-Z0-9]+[_-]?){5,256}$`)
+	resourceNameRegex  = regexp.MustCompile(`([a-z]+[_-]?){2,255}$`)
 )
 
 func ValidateEmail(email string) bool {
@@ -19,8 +21,16 @@ func ValidatePhoneNumber(phone string) bool {
 	return phoneRegex.MatchString(phone)
 }
 
-func ValidateUserUsername(r string) bool {
-	return userLinkRegex.MatchString(r)
+func ValidateShortlink(r string) bool {
+	return shortlinkRegex.MatchString(r)
+}
+
+func ValidateFullShortlink(r string) bool {
+	return fullShortlinkRegex.MatchString(r)
+}
+
+func ValidateResourceName(r string) bool {
+	return resourceNameRegex.MatchString(r)
 }
 
 func CheckInt(old, new int) int {
