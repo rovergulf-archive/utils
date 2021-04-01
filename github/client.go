@@ -39,8 +39,8 @@ func (c *Client) Run(ctx context.Context) error {
 	return nil
 }
 
-func (c *Client) ListOrganizations(ctx context.Context) ([]*github.Organization, error) {
-	orgs, _, err := c.Organizations.List(ctx, c.cfg.Org, nil)
+func (c *Client) ListOrganizations(ctx context.Context, opts *github.ListOptions) ([]*github.Organization, error) {
+	orgs, _, err := c.Organizations.List(ctx, c.cfg.Org, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -48,8 +48,8 @@ func (c *Client) ListOrganizations(ctx context.Context) ([]*github.Organization,
 	return orgs, nil
 }
 
-func (c *Client) ListRepositories(ctx context.Context) ([]*github.Repository, error) {
-	repos, _, err := c.Repositories.List(ctx, c.cfg.User, nil)
+func (c *Client) ListRepositories(ctx context.Context, opts *github.RepositoryListOptions) ([]*github.Repository, error) {
+	repos, _, err := c.Repositories.List(ctx, c.cfg.User, opts)
 	if err != nil {
 		return nil, err
 	}
@@ -57,8 +57,8 @@ func (c *Client) ListRepositories(ctx context.Context) ([]*github.Repository, er
 	return repos, nil
 }
 
-func (c *Client) ListOrgRepositories(ctx context.Context) ([]*github.Repository, error) {
-	repos, _, err := c.Repositories.ListByOrg(ctx, c.cfg.Org, nil)
+func (c *Client) ListOrgRepositories(ctx context.Context, opts *github.RepositoryListByOrgOptions) ([]*github.Repository, error) {
+	repos, _, err := c.Repositories.ListByOrg(ctx, c.cfg.Org, opts)
 	if err != nil {
 		return nil, err
 	}
