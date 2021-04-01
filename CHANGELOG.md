@@ -24,13 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - ./github package `ghx` with Github API & OAuth2 client simple wrapper
 
-### Changed
-
-### Fixed
-
-### Removed
-
-
 ## Released [v1.4.0]
 
 ## 30 Mar 2021
