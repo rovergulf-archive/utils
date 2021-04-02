@@ -1,6 +1,7 @@
 package httplib
 
 import (
+	"crypto/tls"
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
 	"github.com/rovergulf/utils/ipaddr"
@@ -12,9 +13,10 @@ import (
 
 // Interceptor
 type Interceptor struct {
-	Router *mux.Router
-	Tracer opentracing.Tracer
-	Logger *zap.SugaredLogger
+	Router  *mux.Router
+	Tracer  opentracing.Tracer
+	Logger  *zap.SugaredLogger
+	tlsConf *tls.Config
 }
 
 const (
@@ -44,9 +46,10 @@ var allowedMethods = []string{
 	"DELETE",
 }
 
-func NewInterceptor(lg *zap.SugaredLogger, j *tracing.Jaeger) Interceptor {
-	i := Interceptor{
-		Logger: lg,
+func NewInterceptor(lg *zap.SugaredLogger, j *tracing.Jaeger, tlsConf *tls.Config) *Interceptor {
+	i := &Interceptor{
+		Logger:  lg,
+		tlsConf: tlsConf,
 	}
 
 	if j != nil {
