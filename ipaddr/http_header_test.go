@@ -129,7 +129,7 @@ func TestHttpForwardedFor(t *testing.T) {
 	for i, tt := range xForwardedCases {
 		t.Run(tt.name, func(t *testing.T) {
 			tt.prepareRequest(i)
-			if got := ipaddr.HttpForwardedFor(tt.r); got != tt.want {
+			if got := ipaddr.HttpXForwardedFor(tt.r); got != tt.want {
 				t.Errorf("HttpRequestFootprint() = %v, want %v", got, tt.want)
 			}
 		})

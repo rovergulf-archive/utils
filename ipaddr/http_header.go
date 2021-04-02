@@ -13,7 +13,7 @@ const (
 )
 
 // HttpForwardedFor returns X-Forwarded-For Header value if not empty
-func HttpForwardedFor(r *http.Request) string {
+func HttpXForwardedFor(r *http.Request) string {
 	ipAddress := r.RemoteAddr
 	fwdAddress := r.Header.Get(XForwardedFor)
 	if fwdAddress != "" {
@@ -83,5 +83,5 @@ func GetRequestIPAddress(r *http.Request) string {
 		return cloudflareConnectingIp
 	}
 
-	return HttpForwardedFor(r)
+	return HttpXForwardedFor(r)
 }
