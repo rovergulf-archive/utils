@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v1.6.0
+## [Unreleased] v1.7.0
 
-## 2 Apr 2021
+## 3 Apr 2021
 
 ### Added
 
@@ -15,6 +15,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+
+## Released [v1.6.0]
+
+## 2 Apr 2021
+
+### Added
+- validation.go shortlinkRegex, fullShortlinkRegex and resourceName regex
+- **zapx** package as [uber-go/zap](https://github.com/uber-go/zap) wrapper
+- `ipaddr` cloudflare http header ip handling, 
+- `httplib.Interceptor` ipaddr usage for tracing
 
 
 ## Released [v1.5.0]
@@ -280,7 +291,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.5.0...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.6.0...main
+[v1.7.0]: https://github.com/rovergulf/utils/compare/v1.6.0...v1.7.0
+[v1.6.0]: https://github.com/rovergulf/utils/compare/v1.5.0...v1.6.0
 [v1.5.0]: https://github.com/rovergulf/utils/compare/v1.4.0...v1.5.0
 [v1.4.0]: https://github.com/rovergulf/utils/compare/v1.3.2...v1.4.0
 [v1.3.2]: https://github.com/rovergulf/utils/compare/v1.3.1...v1.3.2

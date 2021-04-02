@@ -9,6 +9,7 @@ Rovergulf Engineers common utils repository
 - colors - package to generate random colors in hsv or rgb
 - httplib - http utility library
   - Interceptor wraps [gorilla/mux](https://github.com/gorilla/mux) Router
+- ipaddr - package to handle ip addresses
 - mq
   - [Sarama/shopify]([jackc/pgx](https://github.com/Sarama/shopify)) Kafka consumer wrapper
   - [nats/nats.go](https://github.com/nats-io/nats.go) and [nats/stan.go](https://github.com/nats-io/stan.go) wrapper
@@ -16,3 +17,4 @@ Rovergulf Engineers common utils repository
 - github - [google/go-github](https://github.com/google/go-github) wrapper
 - tracing - [Jaeger Tracing client](github.com/uber/jaeger-client-go) wrapper
 - useragent - discover http.Request User Agent header value
+- zapx - [uber-go/zap](https://github.com/uber-go/zap) initializer
