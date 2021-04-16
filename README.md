@@ -10,6 +10,7 @@ Rovergulf Engineers common utils repository
 - httplib - http utility library
   - Interceptor wraps [gorilla/mux](https://github.com/gorilla/mux) Router
 - ipaddr - package to handle ip addresses
+- mdb - [MongoDB](https://github.com/mongodb/mongo-go-driver) client wrapper 
 - mq
   - [Sarama/shopify]([jackc/pgx](https://github.com/Sarama/shopify)) Kafka consumer wrapper
   - [nats/nats.go](https://github.com/nats-io/nats.go) and [nats/stan.go](https://github.com/nats-io/stan.go) wrapper
