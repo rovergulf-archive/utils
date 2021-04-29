@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-## [Unreleased] v1.8.0
+## Released [v1.8.0]
 
 ## 29 Apr 2021
 
@@ -306,7 +306,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.7.0...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.8.0...main
+[v1.9.0]: https://github.com/rovergulf/utils/compare/v1.8.0...v1.9.0
+[v1.8.0]: https://github.com/rovergulf/utils/compare/v1.7.0...v1.8.0
 [v1.7.0]: https://github.com/rovergulf/utils/compare/v1.6.0...v1.7.0
 [v1.6.0]: https://github.com/rovergulf/utils/compare/v1.5.0...v1.6.0
 [v1.5.0]: https://github.com/rovergulf/utils/compare/v1.4.0...v1.5.0
