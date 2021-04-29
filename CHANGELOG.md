@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v1.8.0
+## [Unreleased] v1.9.0
 
-## 17 Apr 2021
+## 1 May 2021
 
 ### Added
 
@@ -15,6 +15,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+## Released [v1.8.0]
+
+## 29 Apr 2021
+
+### Added
+- **response** package - handles json and yaml output to specified `io.Writer` interface
 
 
 ## Released [v1.7.0]
@@ -299,7 +306,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.7.0...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.8.0...main
+[v1.9.0]: https://github.com/rovergulf/utils/compare/v1.8.0...v1.9.0
+[v1.8.0]: https://github.com/rovergulf/utils/compare/v1.7.0...v1.8.0
 [v1.7.0]: https://github.com/rovergulf/utils/compare/v1.6.0...v1.7.0
 [v1.6.0]: https://github.com/rovergulf/utils/compare/v1.5.0...v1.6.0
 [v1.5.0]: https://github.com/rovergulf/utils/compare/v1.4.0...v1.5.0

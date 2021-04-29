@@ -2,7 +2,7 @@ package ghx
 
 import (
 	"context"
-	"github.com/google/go-github/v33/github"
+	"github.com/google/go-github/v35/github"
 	"go.uber.org/zap"
 	"golang.org/x/oauth2"
 )
