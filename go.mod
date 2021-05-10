@@ -6,7 +6,7 @@ replace github.com/rovergulf/utils => github.com/rovergulf/utils v0.2.1
 
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.0.1 // indirect
-	github.com/Shopify/sarama v1.28.0
+	github.com/Shopify/sarama v1.29.0
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/go-github/v35 v35.2.0
 	github.com/google/go-querystring v1.1.0 // indirect
@@ -15,7 +15,6 @@ require (
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/jackc/tern v1.12.4
-	github.com/klauspost/compress v1.12.2 // indirect
 	github.com/nats-io/jwt v1.2.2 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/nats.go v1.11.0
