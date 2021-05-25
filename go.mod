@@ -24,7 +24,7 @@ require (
 	github.com/prometheus/client_golang v1.9.0 // indirect
 	github.com/prometheus/common v0.18.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
-	github.com/uber/jaeger-client-go v2.29.0+incompatible
+	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible
 	go.mongodb.org/mongo-driver v1.5.2
 	go.uber.org/multierr v1.6.0 // indirect
