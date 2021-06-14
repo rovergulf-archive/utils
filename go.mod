@@ -14,7 +14,7 @@ require (
 	github.com/jackc/pgconn v1.8.1
 	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
 	github.com/jackc/pgx/v4 v4.11.0
-	github.com/jackc/tern v1.12.4
+	github.com/jackc/tern v1.12.5
 	github.com/nats-io/jwt v1.2.2 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/nats.go v1.11.0
