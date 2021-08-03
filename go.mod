@@ -19,7 +19,7 @@ require (
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/nats.go v1.11.0
 	github.com/nats-io/nuid v1.0.1
-	github.com/nats-io/stan.go v0.9.0
+	github.com/nats-io/stan.go v0.10.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/prometheus/client_golang v1.9.0 // indirect
 	github.com/prometheus/common v0.18.0 // indirect
