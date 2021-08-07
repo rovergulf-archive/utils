@@ -11,8 +11,7 @@ require (
 	github.com/google/go-github/v35 v35.3.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/mux v1.8.0
-	github.com/jackc/pgconn v1.8.1
-	github.com/jackc/pgproto3/v2 v2.0.7 // indirect
+	github.com/jackc/pgconn v1.10.0
 	github.com/jackc/pgx/v4 v4.11.0
 	github.com/jackc/tern v1.12.5
 	github.com/nats-io/jwt v1.2.2 // indirect
@@ -28,7 +27,7 @@ require (
 	github.com/uber/jaeger-lib v2.4.1+incompatible
 	go.mongodb.org/mongo-driver v1.5.3
 	go.uber.org/zap v1.18.1
-	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
 	golang.org/x/oauth2 v0.0.0-20210427180440-81ed05c6b58c
 	google.golang.org/appengine v1.6.7 // indirect
 	gopkg.in/yaml.v2 v2.4.0
