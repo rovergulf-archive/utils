@@ -2,13 +2,11 @@ module github.com/rovergulf/utils
 
 go 1.16
 
-replace github.com/rovergulf/utils => github.com/rovergulf/utils v0.2.1
-
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.0.1 // indirect
 	github.com/Shopify/sarama v1.29.1
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-github/v35 v35.3.0
+	github.com/google/go-github/v38 v38.1.0
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.10.0
