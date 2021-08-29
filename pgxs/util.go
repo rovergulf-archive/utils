@@ -1,10 +1,13 @@
 package pgxs
 
 import (
+	"fmt"
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
 	"strings"
 )
+
+var ErrEmptyConfig = fmt.Errorf("pxgs: PSQL Config is required")
 
 //
 // according to https://github.com/jackc/pgx/blob/master/conn.go#L84
