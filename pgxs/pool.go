@@ -12,7 +12,7 @@ import (
 
 func NewPool(ctx context.Context, lg *zap.SugaredLogger, conf *Config) (*Repo, error) {
 	if conf == nil {
-		return nil, fmt.Errorf("pxgs: Config should'n be nil")
+		return nil, ErrEmptyConfig
 	}
 
 	s := &Repo{

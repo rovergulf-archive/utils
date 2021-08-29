@@ -13,7 +13,7 @@ import (
 
 func newConn(ctx context.Context, lg *zap.SugaredLogger, conf *Config) (*pgx.Conn, error) {
 	if conf == nil {
-		return nil, fmt.Errorf("pxgs: Config should'n be nil")
+		return nil, ErrEmptyConfig
 	}
 
 	if conf.TLS.Enabled {
