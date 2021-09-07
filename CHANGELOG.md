@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] v1.9.0
+## [Unreleased] v1.11.0
 
-## 1 May 2021
+## 8 Sep 2021
 
 ### Added
 
@@ -15,6 +15,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+## Released [v1.10.0]
+
+## 7 Sep 2021
+
+### Changed
+- `httplib` now uses `http.Request.RemoteAddr` to identify client as context value, instead `ipaddr.GetRequestIPAddress`
+  I'm pretty sure `ipaddr` may be deleted in near future, due poor design and lack of usage
+- Update dependencies
+
+### Fixed
+
+### Removed
+
+## Released [v1.9.0]
+
+## 30 Aug 2021
+
+### Changed
+- Update dependencies
+
 
 ## Released [v1.8.0]
 
@@ -307,6 +328,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/rovergulf/utils/compare/v1.8.0...main
+[v1.11.0]: https://github.com/rovergulf/utils/compare/v1.10.0...v1.11.0
+[v1.10.0]: https://github.com/rovergulf/utils/compare/v1.9.0...v1.10.0
 [v1.9.0]: https://github.com/rovergulf/utils/compare/v1.8.0...v1.9.0
 [v1.8.0]: https://github.com/rovergulf/utils/compare/v1.7.0...v1.8.0
 [v1.7.0]: https://github.com/rovergulf/utils/compare/v1.6.0...v1.7.0
