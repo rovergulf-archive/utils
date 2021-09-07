@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Released [v1.10.0]
 
-## 7 May 2021
+## 7 Sep 2021
 
 ### Changed
 - `httplib` now uses `http.Request.RemoteAddr` to identify client as context value, instead `ipaddr.GetRequestIPAddress`
