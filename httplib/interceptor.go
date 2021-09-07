@@ -1,6 +1,7 @@
 package httplib
 
 import (
+	"context"
 	"crypto/tls"
 	"github.com/gorilla/mux"
 	"github.com/opentracing/opentracing-go"
@@ -77,13 +78,17 @@ func (i *Interceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx = context.WithValue(ctx, "host", r.Host)
+	ctx = context.WithValue(ctx, "path", r.URL.Path)
+	ctx = context.WithValue(ctx, "remote_addr", r.RemoteAddr)
+
 	if i.Tracer != nil {
 		span := i.Tracer.StartSpan(strings.TrimPrefix(r.URL.Path, "/"))
 		span.SetTag("host", r.Host)
 		span.SetTag("method", r.Method)
 		span.SetTag("path", r.URL.Path)
 		span.SetTag("query", r.URL.RawQuery)
-		span.SetTag("ip_addr", ipaddr.GetRequestIPAddress(r))
+		span.SetTag("remote_addr", r.RemoteAddr)
 		defer span.Finish()
 		ctx = opentracing.ContextWithSpan(ctx, span)
 	}
