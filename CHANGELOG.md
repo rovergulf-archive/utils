@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v1.11.0
 
-## 8 Sep 2021
+## 13 Sep 2021
 
 ### Added
 
@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+## Released [v1.10.1]
+
+## 12 Sep 2021
+
+### Changed
+- Trace and set request context value of `X-Forwarded-For` header in `httplib`
+- Update dependencies
 
 ## Released [v1.10.0]
 
@@ -327,8 +335,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.8.0...main
-[v1.11.0]: https://github.com/rovergulf/utils/compare/v1.10.0...v1.11.0
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.10.1...main
+[v1.11.0]: https://github.com/rovergulf/utils/compare/v1.10.1...v1.11.0
+[v1.10.0]: https://github.com/rovergulf/utils/compare/v1.10.0...v1.10.1
 [v1.10.0]: https://github.com/rovergulf/utils/compare/v1.9.0...v1.10.0
 [v1.9.0]: https://github.com/rovergulf/utils/compare/v1.8.0...v1.9.0
 [v1.8.0]: https://github.com/rovergulf/utils/compare/v1.7.0...v1.8.0
