@@ -14,7 +14,7 @@ require (
 	github.com/jackc/tern v1.12.5
 	github.com/nats-io/jwt v1.2.2 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
-	github.com/nats-io/nats.go v1.12.1
+	github.com/nats-io/nats.go v1.12.3
 	github.com/nats-io/nuid v1.0.1
 	github.com/nats-io/stan.go v0.10.0
 	github.com/opentracing/opentracing-go v1.2.0
