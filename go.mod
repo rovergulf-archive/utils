@@ -23,7 +23,7 @@ require (
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible
-	go.mongodb.org/mongo-driver v1.7.3
+	go.mongodb.org/mongo-driver v1.7.4
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210920023735-84f357641f63
 	golang.org/x/oauth2 v0.0.0-20210427180440-81ed05c6b58c
