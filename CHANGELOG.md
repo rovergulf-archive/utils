@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v1.11.0
 
-## 13 Sep 2021
+## 11 Nov 2021
 
 ### Added
 
@@ -15,6 +15,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+
+## Released [v1.11.0]
+
+## 10 Nov 2021
+
+### Changed
+- go.mod updated up to go 1.17 version
+- dependencies versions are up to last
+
+### Fixed
+- `httplib` cookies value extraction, using `http` package native method
+
+### Notes
+There are nats-server Dependabot security issue, which probably references to go.sum file  
+Not sure how to handle this, so version may be increased at its minor (to fix that issue) later,  
+if I not hit that by this tag
 
 ## Released [v1.10.1]
 
@@ -336,6 +353,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 [Unreleased]: https://github.com/rovergulf/utils/compare/v1.10.1...main
+[v1.12.0]: https://github.com/rovergulf/utils/compare/v1.11.1...v1.12.0
 [v1.11.0]: https://github.com/rovergulf/utils/compare/v1.10.1...v1.11.0
 [v1.10.0]: https://github.com/rovergulf/utils/compare/v1.10.0...v1.10.1
 [v1.10.0]: https://github.com/rovergulf/utils/compare/v1.9.0...v1.10.0

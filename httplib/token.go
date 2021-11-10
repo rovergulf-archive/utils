@@ -11,7 +11,8 @@ const (
 )
 
 func ExtractTokenFromRequest(r *http.Request) (string, error) {
-	token, _ := GetRequestCookieStringValue(r, CookieName)
+	cookie, _ := r.Cookie(CookieName)
+	token := cookie.Value
 	if len(token) > 0 {
 		return token, nil
 	}
