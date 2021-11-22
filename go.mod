@@ -59,7 +59,7 @@ require (
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
 	github.com/nats-io/jwt v1.2.2 // indirect
-	github.com/nats-io/nats-server/v2 v2.1.9 // indirect
+	github.com/nats-io/nats-server/v2 v2.2.0 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
