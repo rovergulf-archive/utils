@@ -3,7 +3,7 @@ module github.com/rovergulf/utils
 go 1.17
 
 require (
-	github.com/Shopify/sarama v1.30.0
+	github.com/Shopify/sarama v1.30.1
 	github.com/google/go-github/v38 v38.1.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.10.1
