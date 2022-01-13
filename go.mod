@@ -6,6 +6,7 @@ require (
 	github.com/Shopify/sarama v1.30.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.10.1
+	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
 	github.com/jackc/pgx/v4 v4.14.1
 	github.com/jackc/tern v1.12.5
 	github.com/nats-io/nats.go v1.13.0
