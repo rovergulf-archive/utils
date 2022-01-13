@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v1.11.0
 
-## 11 Nov 2021
+## 14 Jan 2022
 
 ### Added
 
@@ -15,6 +15,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+
+## 13 Jan 2022
+
+### Added
+- pgxs database stats methods (thanks )
+
+### Changed
+- Updated dependencies
+
+### Fixed
+
+### Removed
+- GitHub and MongoDB packages
 
 
 ## Released [v1.11.0]
