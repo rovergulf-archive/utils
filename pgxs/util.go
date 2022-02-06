@@ -23,7 +23,7 @@ func (db *Repo) SanitizeString(str string) string {
 	return QuoteString(str)
 }
 
-// handleSqlErr used to avoid not exists and already exists debug queries
+// DebugLogSqlErr used to avoid not exists and already exists debug queries
 func (db *Repo) DebugLogSqlErr(q string, err error) error {
 	pgErr, deuce := err.(*pgconn.PgError)
 	if deuce {

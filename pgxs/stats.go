@@ -37,8 +37,8 @@ type DBStats struct {
 
 // Schemas returns a sorted list of PostgreSQL schema names.
 func (db *Repo) Schemas(ctx context.Context) ([]string, error) {
-	sql := "SELECT schema_name FROM information_schema.schemata ORDER BY schema_name"
-	rows, err := db.Pool.Query(ctx, sql)
+	q := "SELECT schema_name FROM information_schema.schemata ORDER BY schema_name"
+	rows, err := db.Pool.Query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -107,8 +107,8 @@ func (db *Repo) CreateSchema(ctx context.Context, schemaName string) error {
 //
 // It returns ErrNotExist if schema does not exist.
 func (db *Repo) DropSchema(ctx context.Context, schemaName string) error {
-	sql := `DROP SCHEMA ` + pgx.Identifier{schemaName}.Sanitize() + ` CASCADE`
-	_, err := db.Pool.Exec(ctx, sql)
+	q := `DROP SCHEMA ` + pgx.Identifier{schemaName}.Sanitize() + ` CASCADE`
+	_, err := db.Pool.Exec(ctx, q)
 
 	if e, ok := err.(*pgconn.PgError); ok && e.Code == pgerrcode.InvalidSchemaName {
 		return ErrNotExist
@@ -121,8 +121,8 @@ func (db *Repo) DropSchema(ctx context.Context, schemaName string) error {
 //
 // It returns ErrAlreadyExist if table already exist.
 func (db *Repo) CreateTable(ctx context.Context, schemaName, tableName string) error {
-	sql := `CREATE TABLE ` + pgx.Identifier{schemaName, tableName}.Sanitize()
-	_, err := db.Pool.Exec(ctx, sql)
+	q := `CREATE TABLE ` + pgx.Identifier{schemaName, tableName}.Sanitize()
+	_, err := db.Pool.Exec(ctx, q)
 
 	if e, ok := err.(*pgconn.PgError); ok && e.Code == pgerrcode.DuplicateTable {
 		return ErrAlreadyExist
@@ -151,7 +151,7 @@ func (db *Repo) DropTable(ctx context.Context, schemaName, tableName string, use
 // TableStats returns a set of statistics for specified schema table.
 func (db *Repo) TableStats(ctx context.Context, schemaName, tableName string) (*TableStats, error) {
 	res := new(TableStats)
-	sql := `SELECT table_name, table_type,
+	q := `SELECT table_name, table_type,
            pg_total_relation_size('"'||t.table_schema||'"."'||t.table_name||'"'),
            pg_indexes_size('"'||t.table_schema||'"."'||t.table_name||'"'),
            pg_relation_size('"'||t.table_schema||'"."'||t.table_name||'"'),
@@ -163,7 +163,7 @@ func (db *Repo) TableStats(ctx context.Context, schemaName, tableName string) (*
      WHERE t.table_schema = $1
        AND t.table_name = $2`
 
-	err := db.Pool.QueryRow(ctx, sql, schemaName, tableName).
+	err := db.Pool.QueryRow(ctx, q, schemaName, tableName).
 		Scan(&res.Table, &res.TableType, &res.SizeTotal, &res.SizeIndexes, &res.SizeTable, &res.Rows)
 	if err != nil {
 		return nil, err
@@ -175,7 +175,7 @@ func (db *Repo) TableStats(ctx context.Context, schemaName, tableName string) (*
 // DBStats returns a set of statistics for a specified schema.
 func (db *Repo) DBStats(ctx context.Context, schemaName string) (*DBStats, error) {
 	res := new(DBStats)
-	sql := `SELECT COUNT(distinct t.table_name)                                                     AS CountTables,
+	q := `SELECT COUNT(distinct t.table_name)                                                     AS CountTables,
            COALESCE(SUM(s.n_live_tup), 0)                                                           AS CountRows,
            COALESCE(SUM(pg_total_relation_size('"'||t.table_schema||'"."'||t.table_name||'"')), 0)  AS SizeTotal,
            COALESCE(SUM(pg_indexes_size('"'||t.table_schema||'"."'||t.table_name||'"')), 0)         AS SizeIndexes,
@@ -191,7 +191,7 @@ func (db *Repo) DBStats(ctx context.Context, schemaName string) (*DBStats, error
      WHERE t.table_schema = $1`
 
 	res.Name = schemaName
-	err := db.Pool.QueryRow(ctx, sql, schemaName).
+	err := db.Pool.QueryRow(ctx, q, schemaName).
 		Scan(&res.CountTables, &res.CountRows, &res.SizeTotal, &res.SizeIndexes, &res.SizeSchema, &res.CountIndexes)
 	if err != nil {
 		return nil, err
