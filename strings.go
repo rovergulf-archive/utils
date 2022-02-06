@@ -1,50 +1,12 @@
 package utils
 
-import (
-	"crypto/sha256"
-	"encoding/hex"
-	"go.uber.org/zap"
-	"io"
-	"math/rand"
-	"time"
-)
-
 type StringArray []string
 
 func (s StringArray) Len() int { return len(s) }
 
-func (s StringArray) Less(i, j int) bool { return s[i] > s[j] }
+func (s StringArray) Less(i, j int) bool { return s[i] < s[j] }
 
 func (s StringArray) Swap(i, j int) { s[i], s[j] = s[j], s[i] }
-
-func GenerateHashFromString(str string) string {
-	hash := sha256.New()
-	hash.Write([]byte(str))
-	return hex.EncodeToString(hash.Sum(nil))
-}
-
-func GeneratePasswordHash(lg *zap.SugaredLogger, str string, salt string) string {
-	hash := sha256.New()
-	hash.Write([]byte(str))
-	_, err := io.WriteString(hash, salt)
-	if err != nil {
-		lg.Errorf("Error while writing hash password with salt: %s", err)
-	}
-	return hex.EncodeToString(hash.Sum(nil))
-}
-
-// random string rune letter values
-var letterRunes = []rune("1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-
-// returns random symbol string with specified length = n
-func GetRandomString(n int) string {
-	rand.Seed(time.Now().UnixNano())
-	b := make([]rune, n)
-	for i := range b {
-		b[i] = letterRunes[rand.Intn(len(letterRunes))]
-	}
-	return string(b)
-}
 
 func RemoveStrDuplicatesUnordered(elements []string) []string {
 	encountered := map[string]bool{}
@@ -76,17 +38,16 @@ func removeSpecifiedStringFromSlice(elements []string, element string) []string 
 	return clean
 }
 
-func RemoveSpecifiedStringFromSlice(elements []string, toRemove string, another ...string) []string {
+func RemoveSpecifiedStringFromSlice(elements []string, toRemove ...string) []string {
 	var clean StringArray
-	if len(another) > 0 {
-		another = append(another, toRemove)
-		for i := range another {
-			clean = removeSpecifiedStringFromSlice(elements, another[i])
+	if len(toRemove) > 0 {
+		for i := range toRemove {
+			clean = removeSpecifiedStringFromSlice(elements, toRemove[i])
 		}
 		return clean
 	}
 
-	return removeSpecifiedStringFromSlice(elements, toRemove)
+	return clean
 }
 
 func UnquoteString(s string) string {

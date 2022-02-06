@@ -2,42 +2,9 @@ package utils
 
 import (
 	"fmt"
-	"sort"
 	"strconv"
 	"time"
 )
-
-type stringArr []string
-
-func (c stringArr) Len() int           { return len(c) }
-func (c stringArr) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
-func (c stringArr) Less(i, j int) bool { return c[i] < c[j] }
-
-type intArr []int
-
-func (c intArr) Len() int           { return len(c) }
-func (c intArr) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }
-func (c intArr) Less(i, j int) bool { return c[i] < c[j] }
-
-func AscendingStringSort(arr stringArr) []string {
-	sort.Sort(arr)
-	return arr
-}
-
-func AscendingIntSort(arr intArr) []int {
-	sort.Sort(arr)
-	return arr
-}
-
-func DescendingStringSort(arr stringArr) []string {
-	sort.Sort(sort.Reverse(arr))
-	return arr
-}
-
-func DescendingIntSort(arr intArr) []int {
-	sort.Sort(sort.Reverse(arr))
-	return arr
-}
 
 func FormatUnixTimestampToPgComparisonValue(timestamp int) string {
 	df := time.Unix(int64(timestamp), 0)
