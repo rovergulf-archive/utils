@@ -8,8 +8,8 @@ import (
 
 const (
 	XForwardedFor  = "X-Forwarded-For"
-	CFConnectingIp = "CF-Connecting-IP"
-	CFRealIp       = "CF-Real-IP"
+	CFConnectingIp = "Cf-Connecting-IP"
+	CFRealIp       = "Cf-Real-IP"
 )
 
 // HttpForwardedFor returns X-Forwarded-For Header value if not empty
