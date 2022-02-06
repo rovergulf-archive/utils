@@ -13,6 +13,6 @@ Rovergulf Engineers common utils repository
   - [Sarama/shopify]([jackc/pgx](https://github.com/Sarama/shopify)) Kafka consumer wrapper
   - [nats/nats.go](https://github.com/nats-io/nats.go) and [nats/stan.go](https://github.com/nats-io/stan.go) wrapper
 - pgxs - [jackc/pgx](https://github.com/jackc/pgx) and [jackc/tern](https://github.com/jackc/tern) wrapper
-- tracing - [Jaeger Tracing client](github.com/uber/jaeger-client-go) wrapper
+- tracing - [Jaeger Tracing client](https://github.com/uber/jaeger-client-go) wrapper
 - useragent - discover http.Request User Agent header value
 - zapx - [uber-go/zap](https://github.com/uber-go/zap) initializer
