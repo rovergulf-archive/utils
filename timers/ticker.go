@@ -3,7 +3,6 @@ package timers
 import (
 	"context"
 	"fmt"
-	"go.uber.org/zap"
 	"log"
 	"time"
 )
@@ -11,7 +10,6 @@ import (
 type Ticker struct {
 	ticker *time.Ticker
 	period int
-	logger *zap.SugaredLogger
 }
 
 //
@@ -25,10 +23,10 @@ func NewTicker(ctx context.Context, period int) (*Ticker, error) {
 	t := new(Ticker)
 
 	interval := time.Duration(period) * time.Second
-	minutes := period / 60
-	hours := minutes / 60
-	seconds := float32(period-minutes*60-hours*60*60) / 100
-	log.Printf("Starting ticker. Interval: %d hours %.2f minutes", hours, float32(minutes)+seconds)
+	//minutes := period / 60
+	//hours := minutes / 60
+	//seconds := float32(period-minutes*60-hours*60*60) / 100
+	//log.Printf("Starting ticker. Interval: %d hours %.2f minutes", hours, float32(minutes)+seconds)
 
 	t.ticker = time.NewTicker(time.Second * interval)
 
