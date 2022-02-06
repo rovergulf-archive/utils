@@ -16,51 +16,51 @@ type Float32Array []float32
 type Float64Array []float64
 
 func (s IntArray) Len() int           { return len(s) }
-func (s IntArray) Less(i, j int) bool { return s[i] > s[j] }
+func (s IntArray) Less(i, j int) bool { return s[i] < s[j] }
 func (s IntArray) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Int8Array) Len() int           { return len(s) }
-func (s Int8Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Int8Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Int8Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Int16Array) Len() int           { return len(s) }
-func (s Int16Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Int16Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Int16Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Int32Array) Len() int           { return len(s) }
-func (s Int32Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Int32Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Int32Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Int64Array) Len() int           { return len(s) }
-func (s Int64Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Int64Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Int64Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s UintArray) Len() int           { return len(s) }
-func (s UintArray) Less(i, j int) bool { return s[i] > s[j] }
+func (s UintArray) Less(i, j int) bool { return s[i] < s[j] }
 func (s UintArray) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Uint8Array) Len() int           { return len(s) }
-func (s Uint8Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Uint8Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Uint8Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Uint16Array) Len() int           { return len(s) }
-func (s Uint16Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Uint16Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Uint16Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Uint32Array) Len() int           { return len(s) }
-func (s Uint32Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Uint32Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Uint32Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Uint64Array) Len() int           { return len(s) }
-func (s Uint64Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Uint64Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Uint64Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Float32Array) Len() int           { return len(s) }
-func (s Float32Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Float32Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Float32Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func (s Float64Array) Len() int           { return len(s) }
-func (s Float64Array) Less(i, j int) bool { return s[i] > s[j] }
+func (s Float64Array) Less(i, j int) bool { return s[i] < s[j] }
 func (s Float64Array) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
 func RemoveIntDuplicatesUnordered(elements []int) []int {
@@ -155,17 +155,12 @@ func removeSpecifiedIntFromSlice(elements []int, element int) []int {
 	return clean
 }
 
-func RemoveSpecifiedIntFromSlice(elements []int, toRemove int, another ...int) []int {
-	if len(another) > 0 {
-		var clean IntArray
-		another = append(another, toRemove)
-		for i := range another {
-			clean = removeSpecifiedIntFromSlice(elements, another[i])
-		}
-		return clean
-	} else {
-		return removeSpecifiedIntFromSlice(elements, toRemove)
+func RemoveSpecifiedIntFromSlice(elements []int, toRemove ...int) []int {
+	var clean IntArray
+	for i := range toRemove {
+		clean = removeSpecifiedIntFromSlice(elements, toRemove[i])
 	}
+	return clean
 }
 
 func removeSpecifiedInt8FromSlice(elements []int8, element int8) []int8 {
@@ -180,17 +175,12 @@ func removeSpecifiedInt8FromSlice(elements []int8, element int8) []int8 {
 	return clean
 }
 
-func RemoveSpecifiedInt8FromSlice(elements []int8, toRemove int8, another ...int8) []int8 {
-	if len(another) > 0 {
-		var clean Int8Array
-		another = append(another, toRemove)
-		for i := range another {
-			clean = removeSpecifiedInt8FromSlice(elements, another[i])
-		}
-		return clean
-	} else {
-		return removeSpecifiedInt8FromSlice(elements, toRemove)
+func RemoveSpecifiedInt8FromSlice(elements []int8, toRemove ...int8) []int8 {
+	var clean Int8Array
+	for i := range toRemove {
+		clean = removeSpecifiedInt8FromSlice(elements, toRemove[i])
 	}
+	return clean
 }
 
 func removeSpecifiedInt16FromSlice(elements []int16, element int16) []int16 {
@@ -205,17 +195,12 @@ func removeSpecifiedInt16FromSlice(elements []int16, element int16) []int16 {
 	return clean
 }
 
-func RemoveSpecifiedInt16FromSlice(elements []int16, toRemove int16, another ...int16) []int16 {
-	if len(another) > 0 {
-		var clean Int16Array
-		another = append(another, toRemove)
-		for i := range another {
-			clean = removeSpecifiedInt16FromSlice(elements, another[i])
-		}
-		return clean
-	} else {
-		return removeSpecifiedInt16FromSlice(elements, toRemove)
+func RemoveSpecifiedInt16FromSlice(elements []int16, toRemove ...int16) []int16 {
+	var clean Int16Array
+	for i := range toRemove {
+		clean = removeSpecifiedInt16FromSlice(elements, toRemove[i])
 	}
+	return clean
 }
 
 func removeSpecifiedInt32FromSlice(elements []int32, element int32) []int32 {
@@ -230,17 +215,12 @@ func removeSpecifiedInt32FromSlice(elements []int32, element int32) []int32 {
 	return clean
 }
 
-func RemoveSpecifiedInt32FromSlice(elements []int32, toRemove int32, another ...int32) []int32 {
-	if len(another) > 0 {
-		var clean Int32Array
-		another = append(another, toRemove)
-		for i := range another {
-			clean = removeSpecifiedInt32FromSlice(elements, another[i])
-		}
-		return clean
-	} else {
-		return removeSpecifiedInt32FromSlice(elements, toRemove)
+func RemoveSpecifiedInt32FromSlice(elements []int32, toRemove ...int32) []int32 {
+	var clean Int32Array
+	for i := range toRemove {
+		clean = removeSpecifiedInt32FromSlice(elements, toRemove[i])
 	}
+	return clean
 }
 
 func removeSpecifiedInt64FromSlice(elements []int64, element int64) []int64 {
@@ -255,15 +235,10 @@ func removeSpecifiedInt64FromSlice(elements []int64, element int64) []int64 {
 	return clean
 }
 
-func RemoveSpecifiedInt64FromSlice(elements []int64, toRemove int64, another ...int64) []int64 {
-	if len(another) > 0 {
-		var clean Int64Array
-		another = append(another, toRemove)
-		for i := range another {
-			clean = removeSpecifiedInt64FromSlice(elements, another[i])
-		}
-		return clean
-	} else {
-		return removeSpecifiedInt64FromSlice(elements, toRemove)
+func RemoveSpecifiedInt64FromSlice(elements []int64, toRemove ...int64) []int64 {
+	var clean Int64Array
+	for i := range toRemove {
+		clean = removeSpecifiedInt64FromSlice(elements, toRemove[i])
 	}
+	return clean
 }
