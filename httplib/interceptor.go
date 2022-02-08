@@ -81,7 +81,8 @@ func (i *Interceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx = context.WithValue(ctx, "host", r.Host)
 	ctx = context.WithValue(ctx, "path", r.URL.Path)
 	ctx = context.WithValue(ctx, "remote_addr", r.RemoteAddr)
-	ctx = context.WithValue(ctx, "x_forwarded_for", r.Header.Get("X-Forwarded-For"))
+	ctx = context.WithValue(ctx, "x_forwarded_for", r.Header.Get(ipaddr.XForwardedFor))
+	ctx = context.WithValue(ctx, "cf_connecting_ip", r.Header.Get(ipaddr.CFConnectingIp))
 
 	if i.Tracer != nil {
 		span := i.Tracer.StartSpan(strings.TrimPrefix(r.URL.Path, "/"))
@@ -90,7 +91,7 @@ func (i *Interceptor) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		span.SetTag("path", r.URL.Path)
 		span.SetTag("query", r.URL.RawQuery)
 		span.SetTag("remote_addr", r.RemoteAddr)
-		span.SetTag("x_forwarded_for", r.Header.Get("X-Forwarded-For"))
+		span.SetTag("x_forwarded_for", r.Header.Get(ipaddr.XForwardedFor))
 		defer span.Finish()
 		ctx = opentracing.ContextWithSpan(ctx, span)
 	}
