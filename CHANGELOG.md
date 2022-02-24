@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] v1.15.0
 
-## 9 Feb 2022
+## 25 Feb 2022
 
 ### Added
 
@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Removed
+
+
+## Released [v1.14.3]
+
+## 24 Feb 2022
+
+### Changed
+- pgxs - fix debug query logging
 
 
 ## Released [v1.14.2]
@@ -393,7 +401,8 @@ if I not hit that by this tag
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.14.2...main
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.14.3...main
+[v1.14.3]: https://github.com/rovergulf/utils/compare/v1.14.2...v1.14.3
 [v1.14.2]: https://github.com/rovergulf/utils/compare/v1.14.1...v1.14.2
 [v1.14.1]: https://github.com/rovergulf/utils/compare/v1.14.0...v1.14.1
 [v1.14.0]: https://github.com/rovergulf/utils/compare/v1.11.0...v1.14.0

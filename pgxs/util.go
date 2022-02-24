@@ -25,14 +25,15 @@ func (db *Repo) SanitizeString(str string) string {
 
 // DebugLogSqlErr used to avoid not exists and already exists debug queries
 func (db *Repo) DebugLogSqlErr(q string, err error) error {
-	pgErr, deuce := err.(*pgconn.PgError)
-	if deuce {
+	var deuce bool
+	pgErr, ok := err.(*pgconn.PgError)
+	if ok {
 		if pgErr.Code == "23505" {
-			deuce = false
+			deuce = true
 		}
 	}
 
-	if err != pgx.ErrNoRows && !deuce {
+	if err != pgx.ErrNoRows && deuce {
 		db.Logger.Debugf("query: \n%s", q)
 	}
 
