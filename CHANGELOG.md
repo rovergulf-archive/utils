@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 
-## Released [v1.14.3]
+## Released [v1.14.4]
 
 ## 24 Feb 2022
 
@@ -401,8 +401,8 @@ if I not hit that by this tag
 - moved `pkg` from private repos to public `utils`
 
 
-[Unreleased]: https://github.com/rovergulf/utils/compare/v1.14.3...main
-[v1.14.3]: https://github.com/rovergulf/utils/compare/v1.14.2...v1.14.3
+[Unreleased]: https://github.com/rovergulf/utils/compare/v1.14.4...main
+[v1.14.4]: https://github.com/rovergulf/utils/compare/v1.14.2...v1.14.4
 [v1.14.2]: https://github.com/rovergulf/utils/compare/v1.14.1...v1.14.2
 [v1.14.1]: https://github.com/rovergulf/utils/compare/v1.14.0...v1.14.1
 [v1.14.0]: https://github.com/rovergulf/utils/compare/v1.11.0...v1.14.0

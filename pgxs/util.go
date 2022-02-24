@@ -33,7 +33,7 @@ func (db *Repo) DebugLogSqlErr(q string, err error) error {
 		}
 	}
 
-	if err != pgx.ErrNoRows && deuce {
+	if err != pgx.ErrNoRows && !deuce {
 		db.Logger.Debugf("query: \n%s", q)
 	}
 
