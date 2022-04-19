@@ -9,7 +9,7 @@ require (
 	github.com/jackc/pgerrcode v0.0.0-20190803225404-afa3381909a6
 	github.com/jackc/pgx/v4 v4.15.0
 	github.com/jackc/tern v1.12.5
-	github.com/nats-io/nats.go v1.13.0
+	github.com/nats-io/nats.go v1.14.0
 	github.com/nats-io/nuid v1.0.1
 	github.com/nats-io/stan.go v0.10.2
 	github.com/opentracing/opentracing-go v1.2.0
