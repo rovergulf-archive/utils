@@ -3,7 +3,7 @@ module github.com/rovergulf/utils
 go 1.17
 
 require (
-	github.com/Shopify/sarama v1.33.0
+	github.com/Shopify/sarama v1.34.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
@@ -59,7 +59,7 @@ require (
 	github.com/nats-io/nats-server/v2 v2.2.0 // indirect
 	github.com/nats-io/nats-streaming-server v0.19.0 // indirect
 	github.com/nats-io/nkeys v0.3.0 // indirect
-	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
+	github.com/pierrec/lz4/v4 v4.1.14 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.12.2 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
@@ -68,7 +68,7 @@ require (
 	github.com/rcrowley/go-metrics v0.0.0-20201227073835-cf1acfcdf475 // indirect
 	go.uber.org/atomic v1.9.0 // indirect
 	go.uber.org/multierr v1.8.0 // indirect
-	golang.org/x/net v0.0.0-20220225172249-27dd8689420f // indirect
+	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2 // indirect
 	golang.org/x/sys v0.0.0-20220114195835-da31bd327af9 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
