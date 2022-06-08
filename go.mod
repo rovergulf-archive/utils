@@ -3,7 +3,7 @@ module github.com/rovergulf/utils
 go 1.17
 
 require (
-	github.com/Shopify/sarama v1.34.0
+	github.com/Shopify/sarama v1.34.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.12.1
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
@@ -52,7 +52,7 @@ require (
 	github.com/jcmturner/gofork v1.0.0 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.2 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/klauspost/compress v1.15.4 // indirect
+	github.com/klauspost/compress v1.15.6 // indirect
 	github.com/matttproud/golang_protobuf_extensions v1.0.1 // indirect
 	github.com/mitchellh/copystructure v1.2.0 // indirect
 	github.com/mitchellh/reflectwalk v1.0.2 // indirect
